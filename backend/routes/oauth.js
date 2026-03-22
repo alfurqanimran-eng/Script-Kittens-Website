@@ -49,36 +49,45 @@ async function fetchJSON(url, options = {}) {
 async function findOrCreateOAuthUser(provider, providerProfile) {
     const { id: providerId, email, username, avatar } = providerProfile;
 
-    // 1. Check if user exists with this provider + provider_id
+    // 1. Check if user exists with this EXACT provider + provider_id
     const [existing] = await pool.execute(
-        'SELECT id, uuid, email, username, role FROM users WHERE provider = ? AND provider_id = ? LIMIT 1',
+        'SELECT id, uuid, email, username, avatar_url, role FROM users WHERE provider = ? AND provider_id = ? LIMIT 1',
         [provider, String(providerId)]
     );
 
     if (existing.length > 0) {
-        await pool.execute('UPDATE users SET last_login = NOW() WHERE id = ?', [existing[0].id]);
+        // Update avatar + last_login every time they login (so avatar stays fresh)
+        await pool.execute(
+            'UPDATE users SET avatar_url = ?, last_login = NOW() WHERE id = ?',
+            [avatar || existing[0].avatar_url, existing[0].id]
+        );
         existing[0].provider = provider;
+        existing[0].avatar_url = avatar || existing[0].avatar_url;
         return existing[0];
     }
 
-    // 2. Check if email already exists (user signed up with email, now linking OAuth)
+    // 2. Check if email already exists (same person, different OAuth provider)
     if (email) {
         const [emailUser] = await pool.execute(
-            'SELECT id, uuid, email, username, role FROM users WHERE email = ? LIMIT 1',
+            'SELECT id, uuid, email, username, avatar_url, role, provider, provider_id FROM users WHERE email = ? LIMIT 1',
             [email.toLowerCase()]
         );
 
         if (emailUser.length > 0) {
+            // DON'T overwrite their original provider — just update avatar + last_login
+            // The user keeps their original provider/provider_id for consistency
+            // But always refresh avatar to whichever provider they're currently using
             await pool.execute(
-                'UPDATE users SET provider = ?, provider_id = ?, avatar_url = COALESCE(avatar_url, ?), is_verified = 1, last_login = NOW() WHERE id = ?',
-                [provider, String(providerId), avatar, emailUser[0].id]
+                'UPDATE users SET avatar_url = ?, is_verified = 1, last_login = NOW() WHERE id = ?',
+                [avatar || emailUser[0].avatar_url, emailUser[0].id]
             );
-            emailUser[0].provider = provider;
+            emailUser[0].provider = provider; // for Discord notification (which method they used this time)
+            emailUser[0].avatar_url = avatar || emailUser[0].avatar_url;
             return emailUser[0];
         }
     }
 
-    // 3. Create new user
+    // 3. Create brand new user
     const userUuid = uuidv4();
     let finalUsername = username || email?.split('@')[0] || `user_${Date.now()}`;
 
@@ -101,6 +110,7 @@ async function findOrCreateOAuthUser(provider, providerProfile) {
         uuid: userUuid,
         email: email?.toLowerCase(),
         username: finalUsername,
+        avatar_url: avatar,
         role: 'user',
         provider: provider,
     };
