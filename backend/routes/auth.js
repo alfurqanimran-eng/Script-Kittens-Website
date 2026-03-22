@@ -12,6 +12,18 @@ const { authRequired, generateToken } = require('../middleware/auth');
 const router = express.Router();
 const SALT_ROUNDS = 12;
 
+/* ─── Get real client IP (handles Hostinger multi-proxy) ─── */
+function getRealIP(req) {
+    return (
+        req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
+        req.headers['x-real-ip'] ||
+        req.headers['cf-connecting-ip'] ||   // Cloudflare
+        req.socket?.remoteAddress ||
+        req.ip ||
+        'Unknown'
+    );
+}
+
 /* ─── Discord Webhook — Login Notifications ─── */
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_LOGIN_WEBHOOK || '';
 
@@ -171,11 +183,11 @@ router.post('/register', async (req, res) => {
         await pool.execute(
             `INSERT INTO sessions (user_id, token_hash, ip_address, user_agent, expires_at)
              VALUES (?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL 7 DAY))`,
-            [user.id, tokenHash, req.ip, (req.headers['user-agent'] || '').slice(0, 500)]
+            [user.id, tokenHash, getRealIP(req), (req.headers['user-agent'] || '').slice(0, 500)]
         );
 
         // Notify Discord — new registration
-        notifyDiscordLogin(user, 'email', req.ip);
+        notifyDiscordLogin(user, 'email', getRealIP(req));
 
         return res.status(201).json({
             message: 'Account created successfully',
@@ -252,11 +264,11 @@ router.post('/login', async (req, res) => {
         await pool.execute(
             `INSERT INTO sessions (user_id, token_hash, ip_address, user_agent, expires_at)
              VALUES (?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL 7 DAY))`,
-            [user.id, tokenHash, req.ip, (req.headers['user-agent'] || '').slice(0, 500)]
+            [user.id, tokenHash, getRealIP(req), (req.headers['user-agent'] || '').slice(0, 500)]
         );
 
         // Notify Discord
-        notifyDiscordLogin(user, 'email', req.ip);
+        notifyDiscordLogin(user, 'email', getRealIP(req));
 
         return res.json({
             message: 'Signed in successfully',

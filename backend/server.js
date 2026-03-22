@@ -66,7 +66,8 @@ const authLimiter = rateLimit({
 });
 
 /* ─── Trust Proxy (for Hostinger / reverse proxy) ─── */
-app.set('trust proxy', 1);
+// Hostinger uses multiple proxy layers — trust all of them
+app.set('trust proxy', true);
 
 /* ─── API Routes ─── */
 // Routes work with both /api/auth/* and /auth/* paths

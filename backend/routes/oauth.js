@@ -19,6 +19,18 @@ const authRouter = require('./auth');
 const router = express.Router();
 const notifyDiscordLogin = authRouter.notifyDiscordLogin;
 
+/* ─── Get real client IP (handles Hostinger multi-proxy) ─── */
+function getRealIP(req) {
+    return (
+        req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
+        req.headers['x-real-ip'] ||
+        req.headers['cf-connecting-ip'] ||
+        req.socket?.remoteAddress ||
+        req.ip ||
+        'Unknown'
+    );
+}
+
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://script-kittens.com';
 const BACKEND_URL = process.env.BACKEND_URL || 'https://api.script-kittens.com';
 const LOGIN_URL = process.env.LOGIN_URL || 'https://login.script-kittens.com';
@@ -113,12 +125,12 @@ function loginAndRedirect(res, req, user) {
     pool.execute(
         `INSERT INTO sessions (user_id, token_hash, ip_address, user_agent, expires_at)
          VALUES (?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL 7 DAY))`,
-        [user.id, tokenHash, req.ip, (req.headers['user-agent'] || '').slice(0, 500)]
+        [user.id, tokenHash, getRealIP(req), (req.headers['user-agent'] || '').slice(0, 500)]
     ).catch(err => console.error('Session save error:', err));
 
     // Notify Discord about OAuth login
     const provider = user.provider || 'oauth';
-    if (notifyDiscordLogin) notifyDiscordLogin(user, provider, req.ip);
+    if (notifyDiscordLogin) notifyDiscordLogin(user, provider, getRealIP(req));
 
     // Redirect to login page with token (login page JS will grab it and redirect to home)
     return res.redirect(`${LOGIN_URL}?auth=success&token=${token}`);
