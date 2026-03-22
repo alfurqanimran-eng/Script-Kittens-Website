@@ -380,10 +380,15 @@
      *  9. CHECK IF ALREADY LOGGED IN
      * ───────────────────────────────────────────── */
     (function checkExistingAuth() {
-        // NEVER auto-redirect if we just logged out (sessionStorage flag)
-        if (sessionStorage.getItem('sk_just_logged_out') === '1') {
-            sessionStorage.removeItem('sk_just_logged_out');
-            // Also nuke everything from localStorage to be sure
+        var params  = new URLSearchParams(window.location.search);
+        var hash    = window.location.hash;
+        var justLoggedOut = (
+            params.get('logged_out') === '1' ||
+            hash.includes('logged_out')
+        );
+
+        // If we just logged out — nuke everything and stay here
+        if (justLoggedOut) {
             localStorage.removeItem('sk_token');
             localStorage.removeItem('sk_user');
             localStorage.removeItem('userLoggedIn');
@@ -391,37 +396,36 @@
             localStorage.removeItem('userUsername');
             localStorage.removeItem('userEmail');
             localStorage.removeItem('userAvatar');
+            localStorage.removeItem('userBio');
+            localStorage.removeItem('userStatus');
             localStorage.removeItem('userRole');
             localStorage.removeItem('userAuthMethod');
-            return; // stay on login page
-        }
-
-        // Also check URL param fallback
-        var params = new URLSearchParams(window.location.search);
-        if (params.get('logged_out') === '1') {
+            // Also tell backend to kill the cookie (belt AND suspenders)
+            fetch(apiUrl('/api/auth/logout'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include', // need this to clear the cookie
+            }).catch(function() {});
+            // Clean the URL
             window.history.replaceState({}, '', window.location.pathname);
-            localStorage.removeItem('sk_token');
-            localStorage.removeItem('sk_user');
-            localStorage.removeItem('userLoggedIn');
-            return;
+            return; // stay on login page, do NOT check token
         }
 
-        // Only check if token exists in localStorage
+        // No logout signal — check if already logged in
         var token = localStorage.getItem('sk_token');
-        if (!token) return;
+        if (!token) return; // no token, show login form
 
-        // Verify with backend — use header only, NOT cookie
+        // Verify token with backend (header only, not cookie)
         fetch(apiUrl('/api/auth/me'), {
             method: 'GET',
             headers: { 'Authorization': 'Bearer ' + token },
-            credentials: 'omit', // ignore cookies completely
+            credentials: 'omit',
         })
-        .then(function (res) {
+        .then(function(res) {
             if (res.ok) {
-                // Still valid — redirect to homepage
                 window.location.href = 'https://script-kittens.com';
             } else {
-                // Invalid/expired — wipe everything
+                // Dead token — clear it all
                 localStorage.removeItem('sk_token');
                 localStorage.removeItem('sk_user');
                 localStorage.removeItem('userLoggedIn');
@@ -433,9 +437,7 @@
                 localStorage.removeItem('userAuthMethod');
             }
         })
-        .catch(function () {
-            // Network error — stay on login page, don't redirect
-        });
+        .catch(function() { /* network error — stay on login page */ });
     })();
 
     /* ─────────────────────────────────────────────

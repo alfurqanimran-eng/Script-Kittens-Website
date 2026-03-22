@@ -37,7 +37,7 @@ function isLoggedIn() {
 function logout() {
     var token = getAuthToken();
 
-    // Clear ALL local storage auth data FIRST
+    // Clear ALL local storage auth data immediately
     localStorage.removeItem('sk_token');
     localStorage.removeItem('sk_user');
     localStorage.removeItem('userLoggedIn');
@@ -50,11 +50,7 @@ function logout() {
     localStorage.removeItem('userRole');
     localStorage.removeItem('userAuthMethod');
 
-    // Set sessionStorage flag so login page knows not to auto-redirect
-    // sessionStorage is shared across subdomains on same browser tab
-    sessionStorage.setItem('sk_just_logged_out', '1');
-
-    // Call backend to clear HTTP-only cookie + session, THEN redirect
+    // Call backend to clear HTTP-only cookie + invalidate session
     fetch(API_BASE_URL + '/auth/logout', {
         method: 'POST',
         headers: {
@@ -65,7 +61,7 @@ function logout() {
     })
     .catch(function() {})
     .finally(function() {
-        // Redirect with both flags — belt AND suspenders
-        window.location.href = 'https://login.script-kittens.com?logged_out=1';
+        // Use hash fragment — works across subdomains, not stripped by servers
+        window.location.href = 'https://login.script-kittens.com?logged_out=1#logged_out';
     });
 }

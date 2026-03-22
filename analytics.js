@@ -22,7 +22,10 @@
     function getUser() {
         try {
             const raw = localStorage.getItem('sk_user');
-            if (raw) return JSON.parse(raw);
+            if (raw) {
+                const u = JSON.parse(raw);
+                if (u && u.username) return u;
+            }
         } catch (e) {}
         const username = localStorage.getItem('userUsername');
         const email    = localStorage.getItem('userEmail');
