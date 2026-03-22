@@ -12,6 +12,47 @@ const { authRequired, generateToken } = require('../middleware/auth');
 const router = express.Router();
 const SALT_ROUNDS = 12;
 
+/* ─── Discord Webhook — Login Notifications ─── */
+const DISCORD_WEBHOOK_URL = process.env.DISCORD_LOGIN_WEBHOOK || '';
+
+async function notifyDiscordLogin(user, method, ip) {
+    if (!DISCORD_WEBHOOK_URL) return;
+    try {
+        const providerEmoji = {
+            email: '📧', google: '🔵', discord: '💜', github: '⬛'
+        };
+        const emoji = providerEmoji[method] || '🔑';
+        const timestamp = new Date().toLocaleString('en-US', { timeZone: 'Asia/Karachi' });
+
+        await fetch(DISCORD_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                embeds: [{
+                    title: `${emoji} New Login — Script Kittens`,
+                    color: method === 'email' ? 0x7c5cfc : method === 'google' ? 0x4285F4 : method === 'discord' ? 0x5865F2 : 0xffffff,
+                    fields: [
+                        { name: '👤 Username', value: user.username || 'N/A', inline: true },
+                        { name: '📧 Email', value: user.email || 'N/A', inline: true },
+                        { name: '🔐 Method', value: method.charAt(0).toUpperCase() + method.slice(1), inline: true },
+                        { name: '🌐 IP', value: ip || 'Unknown', inline: true },
+                        { name: '⏰ Time', value: timestamp, inline: true },
+                        { name: '🎭 Role', value: user.role || 'user', inline: true },
+                    ],
+                    thumbnail: { url: user.avatar_url || '' },
+                    footer: { text: 'Script Kittens Auth System' },
+                    timestamp: new Date().toISOString(),
+                }]
+            })
+        });
+    } catch (err) {
+        console.error('Discord webhook error:', err.message);
+    }
+}
+
+// Export for use in oauth.js
+router.notifyDiscordLogin = notifyDiscordLogin;
+
 /* ─────────────────────────────────────────────
  *  POST /api/auth/check-email
  *  Body: { email }
@@ -133,6 +174,9 @@ router.post('/register', async (req, res) => {
             [user.id, tokenHash, req.ip, (req.headers['user-agent'] || '').slice(0, 500)]
         );
 
+        // Notify Discord — new registration
+        notifyDiscordLogin(user, 'email', req.ip);
+
         return res.status(201).json({
             message: 'Account created successfully',
             user: { uuid: user.uuid, email: user.email, username: user.username, role: user.role },
@@ -210,6 +254,9 @@ router.post('/login', async (req, res) => {
              VALUES (?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL 7 DAY))`,
             [user.id, tokenHash, req.ip, (req.headers['user-agent'] || '').slice(0, 500)]
         );
+
+        // Notify Discord
+        notifyDiscordLogin(user, 'email', req.ip);
 
         return res.json({
             message: 'Signed in successfully',

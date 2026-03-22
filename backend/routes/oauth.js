@@ -14,8 +14,10 @@ const crypto = require('crypto');
 const { v4: uuidv4 } = require('uuid');
 const pool = require('../db/connection');
 const { generateToken } = require('../middleware/auth');
+const authRouter = require('./auth');
 
 const router = express.Router();
+const notifyDiscordLogin = authRouter.notifyDiscordLogin;
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://script-kittens.com';
 const BACKEND_URL = process.env.BACKEND_URL || 'https://api.script-kittens.com';
@@ -43,6 +45,7 @@ async function findOrCreateOAuthUser(provider, providerProfile) {
 
     if (existing.length > 0) {
         await pool.execute('UPDATE users SET last_login = NOW() WHERE id = ?', [existing[0].id]);
+        existing[0].provider = provider;
         return existing[0];
     }
 
@@ -58,6 +61,7 @@ async function findOrCreateOAuthUser(provider, providerProfile) {
                 'UPDATE users SET provider = ?, provider_id = ?, avatar_url = COALESCE(avatar_url, ?), is_verified = 1, last_login = NOW() WHERE id = ?',
                 [provider, String(providerId), avatar, emailUser[0].id]
             );
+            emailUser[0].provider = provider;
             return emailUser[0];
         }
     }
@@ -86,6 +90,7 @@ async function findOrCreateOAuthUser(provider, providerProfile) {
         email: email?.toLowerCase(),
         username: finalUsername,
         role: 'user',
+        provider: provider,
     };
 }
 
@@ -110,6 +115,10 @@ function loginAndRedirect(res, req, user) {
          VALUES (?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL 7 DAY))`,
         [user.id, tokenHash, req.ip, (req.headers['user-agent'] || '').slice(0, 500)]
     ).catch(err => console.error('Session save error:', err));
+
+    // Notify Discord about OAuth login
+    const provider = user.provider || 'oauth';
+    if (notifyDiscordLogin) notifyDiscordLogin(user, provider, req.ip);
 
     // Redirect to login page with token (login page JS will grab it and redirect to home)
     return res.redirect(`${LOGIN_URL}?auth=success&token=${token}`);
