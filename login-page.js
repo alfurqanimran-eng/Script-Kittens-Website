@@ -43,10 +43,15 @@
                         if (data.user.avatar_url) localStorage.setItem('userAvatar', data.user.avatar_url);
                         if (data.user.role) localStorage.setItem('userRole', data.user.role);
                         if (data.user.provider) localStorage.setItem('userAuthMethod', data.user.provider);
+                        // Redirect with username + provider so homepage can show welcome toast
+                        var provider = data.user.provider || 'oauth';
+                        var username = encodeURIComponent(data.user.username || 'User');
+                        window.location.href = 'https://script-kittens.com?auth_success=' + provider + '&name=' + username;
+                    } else {
+                        window.location.href = 'https://script-kittens.com';
                     }
                 })
-                .catch(function () { })
-                .finally(function () {
+                .catch(function () {
                     window.location.href = 'https://script-kittens.com';
                 });
             return;
@@ -295,7 +300,10 @@
                 }
 
                 showMessage(stepLogin, 'success', 'Signed in successfully! Redirecting...');
-                setTimeout(function () { window.location.href = 'https://script-kittens.com'; }, 1200);
+                setTimeout(function () {
+                    var username = encodeURIComponent(result.data.user ? result.data.user.username || 'User' : 'User');
+                    window.location.href = 'https://script-kittens.com?auth_success=email&name=' + username;
+                }, 1200);
             })
             .catch(function (err) {
                 btn.classList.remove('loading');
@@ -356,7 +364,10 @@
                 }
 
                 showMessage(stepSignup, 'success', 'Account created! Redirecting...');
-                setTimeout(function () { window.location.href = 'https://script-kittens.com'; }, 1200);
+                setTimeout(function () {
+                    var username = encodeURIComponent(result.data.user ? result.data.user.username || 'User' : 'User');
+                    window.location.href = 'https://script-kittens.com?auth_success=email&name=' + username;
+                }, 1200);
             })
             .catch(function (err) {
                 btn.classList.remove('loading');

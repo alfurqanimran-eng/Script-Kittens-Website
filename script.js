@@ -3333,44 +3333,75 @@ function handleSocialLogin(provider) {
     }
 }
 
-function showAuthNotification(title, message, isError) {
-    const notification = document.createElement('div');
-    const borderColor = isError ? 'rgba(255, 70, 70, 0.3)' : 'rgba(0, 255, 136, 0.2)';
-    const iconBg = isError ? 'rgba(255, 70, 70, 0.15)' : 'rgba(0, 255, 136, 0.15)';
-    const iconColor = isError ? '#ff4646' : '#00ff88';
-    const iconClass = isError ? 'fa-exclamation-circle' : 'fa-check-circle';
-    const shadowColor = isError ? 'rgba(255, 70, 70, 0.2)' : 'rgba(0, 255, 136, 0.2)';
+function showAuthNotification(title, message, isError, options) {
+    options = options || {};
+    var avatarUrl = options.avatar || '';
+    var provider = options.provider || '';
 
-    notification.style.cssText = `
-        position: fixed; top: 100px; right: 30px;
-        background: rgba(10, 8, 20, 0.85);
-        backdrop-filter: blur(30px) saturate(180%);
-        -webkit-backdrop-filter: blur(30px) saturate(180%);
-        padding: 20px 24px; border-radius: 16px;
-        border: 1px solid ${borderColor}; color: white;
-        font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 1px ${shadowColor} inset;
-        z-index: 10001;
-        animation: notificationSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-        display: flex; align-items: center; gap: 14px;
-        min-width: 300px; max-width: 380px;
-    `;
+    var notification = document.createElement('div');
+    var borderColor = isError ? 'rgba(255, 70, 70, 0.3)' : 'rgba(220, 38, 38, 0.4)';
+    var iconBg = isError ? 'rgba(255, 70, 70, 0.15)' : 'rgba(220, 38, 38, 0.15)';
+    var iconColor = isError ? '#ff4646' : '#dc2626';
+    var iconClass = isError ? 'fa-exclamation-circle' : 'fa-check-circle';
+    var shadowColor = isError ? 'rgba(255, 70, 70, 0.2)' : 'rgba(220, 38, 38, 0.3)';
 
-    notification.innerHTML = `
-        <div style="width:42px;height:42px;background:${iconBg};border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <i class="fas ${iconClass}" style="font-size:20px;color:${iconColor};"></i>
-        </div>
-        <div style="flex:1;">
-            <div style="font-weight:700;font-size:14px;margin-bottom:3px;color:white;">${title}</div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.7);font-weight:500;">${message}</div>
-        </div>
-    `;
+    // Provider-specific colors
+    var providerColors = { google: '#4285F4', discord: '#5865F2', github: '#fff', email: '#dc2626' };
+    var providerIcons = { google: 'fab fa-google', discord: 'fab fa-discord', github: 'fab fa-github', email: 'fas fa-envelope' };
+    if (provider && providerColors[provider] && !isError) {
+        iconColor = providerColors[provider];
+        iconBg = providerColors[provider] + '22';
+        borderColor = providerColors[provider] + '55';
+        shadowColor = providerColors[provider] + '33';
+        iconClass = providerIcons[provider] || iconClass;
+    }
+
+    notification.style.cssText =
+        'position:fixed;top:100px;right:30px;' +
+        'background:rgba(10,8,20,0.92);' +
+        'backdrop-filter:blur(30px) saturate(180%);' +
+        '-webkit-backdrop-filter:blur(30px) saturate(180%);' +
+        'padding:16px 20px;border-radius:16px;' +
+        'border:1px solid ' + borderColor + ';color:white;' +
+        'font-family:"Space Grotesk","Outfit",sans-serif;font-size:14px;font-weight:600;' +
+        'box-shadow:0 20px 60px rgba(0,0,0,0.5),0 0 1px ' + shadowColor + ' inset,0 0 20px ' + shadowColor + ';' +
+        'z-index:10001;' +
+        'animation:notificationSlideIn 0.5s cubic-bezier(0.34,1.56,0.64,1);' +
+        'display:flex;align-items:center;gap:14px;' +
+        'min-width:300px;max-width:420px;';
+
+    // Build icon or avatar
+    var iconHtml = '';
+    if (avatarUrl && !isError) {
+        iconHtml = '<img src="' + avatarUrl + '" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid ' + iconColor + ';flex-shrink:0;" onerror="this.style.display=\'none\'">';
+    } else {
+        iconHtml = '<div style="width:42px;height:42px;background:' + iconBg + ';border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">' +
+            '<i class="' + iconClass + '" style="font-size:20px;color:' + iconColor + ';"></i>' +
+        '</div>';
+    }
+
+    // Provider badge
+    var providerBadge = '';
+    if (provider && providerIcons[provider] && !isError) {
+        var pName = provider.charAt(0).toUpperCase() + provider.slice(1);
+        providerBadge = '<div style="display:flex;align-items:center;gap:5px;margin-top:4px;">' +
+            '<i class="' + providerIcons[provider] + '" style="font-size:11px;color:' + providerColors[provider] + ';"></i>' +
+            '<span style="font-size:11px;color:rgba(255,255,255,0.5);font-weight:400;">via ' + pName + '</span>' +
+        '</div>';
+    }
+
+    notification.innerHTML = iconHtml +
+        '<div style="flex:1;">' +
+            '<div style="font-weight:700;font-size:14px;margin-bottom:2px;color:white;">' + title + '</div>' +
+            '<div style="font-size:12px;color:rgba(255,255,255,0.7);font-weight:500;">' + message + '</div>' +
+            providerBadge +
+        '</div>';
 
     document.body.appendChild(notification);
-    setTimeout(() => {
-        notification.style.animation = 'notificationSlideOut 0.4s cubic-bezier(0.6, 0, 0.8, 0.4)';
-        setTimeout(() => notification.remove(), 400);
-    }, 4000);
+    setTimeout(function() {
+        notification.style.animation = 'notificationSlideOut 0.4s cubic-bezier(0.6,0,0.8,0.4)';
+        setTimeout(function() { notification.remove(); }, 400);
+    }, 5000);
 }
 
 function updateUIForLoggedInUser(user) {
@@ -3570,20 +3601,19 @@ notificationStyles.textContent = `
 document.head.appendChild(notificationStyles);
 
 function checkAuthSession() {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('auth_success')) {
-        const provider = params.get('auth_success');
-        const name = params.get('name') || '';
-        const providerNames = { google: 'Google', github: 'GitHub', discord: 'Discord' };
-        showAuthNotification('Welcome!', `Signed in with ${providerNames[provider] || provider}${name ? ' as ' + name : ''}`, false);
+    var params = new URLSearchParams(window.location.search);
+    var oauthProvider = params.get('auth_success');
+    var oauthName = params.get('name') ? decodeURIComponent(params.get('name')) : '';
+    var showWelcome = !!oauthProvider; // show toast after OAuth redirect
+
+    if (params.get('auth_success') || params.get('auth_error')) {
         window.history.replaceState({}, '', window.location.pathname);
     }
     if (params.get('auth_error')) {
         showAuthNotification('Login Failed', decodeURIComponent(params.get('auth_error')), true);
-        window.history.replaceState({}, '', window.location.pathname);
     }
 
-    // Try cookie-based auth first (works across subdomains)
+    // Try cookie-based auth (works across subdomains)
     var token = localStorage.getItem('sk_token');
     var headers = {};
     if (token) {
@@ -3594,24 +3624,46 @@ function checkAuthSession() {
         credentials: 'include',
         headers: headers
     })
-        .then(res => {
+        .then(function(res) {
             if (!res.ok) throw new Error('Not authenticated');
             return res.json();
         })
-        .then(data => {
+        .then(function(data) {
             if (data.user) {
                 updateUIForLoggedInUser(data.user);
                 if (typeof loadProfileExtras === 'function') loadProfileExtras();
+
+                // Show welcome notification
+                if (showWelcome) {
+                    var displayName = data.user.username || oauthName || 'User';
+                    var avatar = data.user.avatar_url || '';
+                    var provider = oauthProvider || data.user.provider || '';
+                    showAuthNotification(
+                        'Welcome back, ' + displayName + '!',
+                        'Signed in successfully',
+                        false,
+                        { avatar: avatar, provider: provider }
+                    );
+                }
             } else {
                 resetUIForGuest();
             }
         })
-        .catch(() => {
-            // Check if we have cached user data from login-page.js
+        .catch(function() {
+            // Check if we have cached user data
             var cachedUser = localStorage.getItem('sk_user');
             if (cachedUser && localStorage.getItem('sk_token')) {
                 try {
-                    updateUIForLoggedInUser(JSON.parse(cachedUser));
+                    var user = JSON.parse(cachedUser);
+                    updateUIForLoggedInUser(user);
+                    if (showWelcome) {
+                        showAuthNotification(
+                            'Welcome back, ' + (user.username || 'User') + '!',
+                            'Signed in successfully',
+                            false,
+                            { avatar: user.avatar_url || '', provider: oauthProvider || user.provider || '' }
+                        );
+                    }
                 } catch (e) {
                     resetUIForGuest();
                 }
