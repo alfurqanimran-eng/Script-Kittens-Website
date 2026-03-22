@@ -332,9 +332,33 @@ router.post('/login', async (req, res) => {
 /* ─────────────────────────────────────────────
  *  GET /api/auth/me
  *  Returns current authenticated user info
+ *  ALSO verifies the session hasn't been invalidated (logged out)
  * ───────────────────────────────────────────── */
 router.get('/me', authRequired, async (req, res) => {
     try {
+        // Get the raw token to check if session still exists in DB
+        let token = null;
+        const authHeader = req.headers.authorization;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            token = authHeader.slice(7);
+        }
+        if (!token && req.cookies && req.cookies.sk_token) {
+            token = req.cookies.sk_token;
+        }
+
+        // Verify session is still active (not logged out)
+        if (token) {
+            const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+            const [sessions] = await pool.execute(
+                'SELECT id FROM sessions WHERE token_hash = ? AND expires_at > NOW() LIMIT 1',
+                [tokenHash]
+            );
+            if (sessions.length === 0) {
+                // Session was invalidated (user logged out) — reject even though JWT is valid
+                return res.status(401).json({ error: 'Session expired or logged out' });
+            }
+        }
+
         const [rows] = await pool.execute(
             'SELECT uuid, email, username, avatar_url, role, provider, is_verified, last_login, created_at FROM users WHERE id = ? LIMIT 1',
             [req.user.id]
