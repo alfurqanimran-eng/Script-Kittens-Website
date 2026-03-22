@@ -3606,11 +3606,26 @@ function checkAuthSession() {
     var oauthName = params.get('name') ? decodeURIComponent(params.get('name')) : '';
     var showWelcome = !!oauthProvider; // show toast after OAuth redirect
 
+    // Clean URL params BEFORE fetch (visually cleaner)
     if (params.get('auth_success') || params.get('auth_error')) {
         window.history.replaceState({}, '', window.location.pathname);
     }
     if (params.get('auth_error')) {
         showAuthNotification('Login Failed', decodeURIComponent(params.get('auth_error')), true);
+    }
+
+    // Show welcome notification IMMEDIATELY if we have URL params
+    // Don't wait for /auth/me — it might fail or be slow
+    if (showWelcome && oauthName) {
+        // Small delay so page renders first
+        setTimeout(function() {
+            showAuthNotification(
+                'Welcome back, ' + oauthName + '!',
+                'Signed in successfully',
+                false,
+                { provider: oauthProvider }
+            );
+        }, 500);
     }
 
     // Try cookie-based auth (works across subdomains)
@@ -3633,18 +3648,17 @@ function checkAuthSession() {
                 updateUIForLoggedInUser(data.user);
                 if (typeof loadProfileExtras === 'function') loadProfileExtras();
 
-                // Show welcome notification
-                if (showWelcome) {
-                    var displayName = data.user.username || oauthName || 'User';
-                    var avatar = data.user.avatar_url || '';
-                    var provider = oauthProvider || data.user.provider || '';
+                // If we didn't show welcome yet (no oauthName in URL), show it now with avatar
+                if (showWelcome && !oauthName && data.user.avatar_url) {
                     showAuthNotification(
-                        'Welcome back, ' + displayName + '!',
+                        'Welcome back, ' + (data.user.username || 'User') + '!',
                         'Signed in successfully',
                         false,
-                        { avatar: avatar, provider: provider }
+                        { avatar: data.user.avatar_url, provider: oauthProvider || data.user.provider || '' }
                     );
                 }
+                // Update the notification with avatar if we already showed one
+                // (avatar comes from /auth/me response)
             } else {
                 resetUIForGuest();
             }
@@ -3656,14 +3670,6 @@ function checkAuthSession() {
                 try {
                     var user = JSON.parse(cachedUser);
                     updateUIForLoggedInUser(user);
-                    if (showWelcome) {
-                        showAuthNotification(
-                            'Welcome back, ' + (user.username || 'User') + '!',
-                            'Signed in successfully',
-                            false,
-                            { avatar: user.avatar_url || '', provider: oauthProvider || user.provider || '' }
-                        );
-                    }
                 } catch (e) {
                     resetUIForGuest();
                 }
