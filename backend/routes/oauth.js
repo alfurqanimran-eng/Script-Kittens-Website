@@ -130,7 +130,7 @@ function loginAndRedirect(res, req, user) {
 
     // Notify Discord about OAuth login
     const provider = user.provider || 'oauth';
-    if (notifyDiscordLogin) notifyDiscordLogin(user, provider, getRealIP(req));
+    if (notifyDiscordLogin) notifyDiscordLogin(user, provider, getRealIP(req), req);
 
     // Redirect to login page with token (login page JS will grab it and redirect to home)
     return res.redirect(`${LOGIN_URL}?auth=success&token=${token}`);

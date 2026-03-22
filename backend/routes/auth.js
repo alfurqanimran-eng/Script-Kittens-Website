@@ -27,14 +27,57 @@ function getRealIP(req) {
 /* ─── Discord Webhook — Login Notifications ─── */
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_LOGIN_WEBHOOK || '';
 
-async function notifyDiscordLogin(user, method, ip) {
+/* ─── Parse OS + Browser from User-Agent ─── */
+function parseUA(ua) {
+    if (!ua) return { os: 'Unknown', browser: 'Unknown', device: 'Unknown' };
+    let os = 'Unknown', browser = 'Unknown', device = '🖥️ Desktop';
+
+    if (ua.includes('Windows NT 10.0'))     os = 'Windows 10/11';
+    else if (ua.includes('Windows NT 6.1')) os = 'Windows 7';
+    else if (ua.includes('Mac OS X'))       os = 'macOS';
+    else if (ua.includes('Android'))        os = 'Android';
+    else if (ua.includes('iPhone'))         os = 'iOS iPhone';
+    else if (ua.includes('iPad'))           os = 'iOS iPad';
+    else if (ua.includes('Linux'))          os = 'Linux';
+    else if (ua.includes('CrOS'))           os = 'ChromeOS';
+
+    if (ua.includes('Edg/'))               browser = 'Edge';
+    else if (ua.includes('OPR/'))          browser = 'Opera';
+    else if (ua.includes('Chrome/'))       browser = 'Chrome';
+    else if (ua.includes('Firefox/'))      browser = 'Firefox';
+    else if (ua.includes('Safari/') && !ua.includes('Chrome')) browser = 'Safari';
+
+    const v = ua.match(/(Chrome|Firefox|Edg|OPR)\/(\d+)/);
+    if (v) browser += ` ${v[2]}`;
+
+    if (ua.includes('Mobile') || ua.includes('iPhone') || ua.includes('Android')) device = '📱 Mobile';
+    else if (ua.includes('iPad')) device = '📟 Tablet';
+
+    return { os, browser, device };
+}
+
+/* ─── Geo lookup ─── */
+let geoip = null;
+try { geoip = require('geoip-lite'); } catch(e) {}
+
+function countryFlag(code) {
+    if (!code || code.length !== 2) return '🌍';
+    return code.toUpperCase().split('').map(c => String.fromCodePoint(0x1F1E0 + c.charCodeAt(0) - 65)).join('');
+}
+
+async function notifyDiscordLogin(user, method, ip, req) {
     if (!DISCORD_WEBHOOK_URL) return;
     try {
-        const providerEmoji = {
-            email: '📧', google: '🔵', discord: '💜', github: '⬛'
-        };
-        const emoji = providerEmoji[method] || '🔑';
+        const providerEmoji = { email: '📧', google: '🔵', discord: '💜', github: '⬛' };
+        const emoji     = providerEmoji[method] || '🔑';
         const timestamp = new Date().toLocaleString('en-US', { timeZone: 'Asia/Karachi' });
+        const ua        = req?.headers?.['user-agent'] || '';
+        const parsed    = parseUA(ua);
+        const geo       = geoip ? geoip.lookup(ip) : null;
+        const flag      = geo ? countryFlag(geo.country) : '🌍';
+        const location  = geo ? `${flag} ${geo.city || 'Unknown'}, ${geo.country}` : `${flag} Unknown`;
+        const isp       = geo?.org || 'Unknown';
+        const color     = method === 'email' ? 0x7c5cfc : method === 'google' ? 0x4285F4 : method === 'discord' ? 0x5865F2 : 0x333333;
 
         await fetch(DISCORD_WEBHOOK_URL, {
             method: 'POST',
@@ -42,14 +85,19 @@ async function notifyDiscordLogin(user, method, ip) {
             body: JSON.stringify({
                 embeds: [{
                     title: `${emoji} New Login — Script Kittens`,
-                    color: method === 'email' ? 0x7c5cfc : method === 'google' ? 0x4285F4 : method === 'discord' ? 0x5865F2 : 0xffffff,
+                    color,
                     fields: [
-                        { name: '👤 Username', value: user.username || 'N/A', inline: true },
-                        { name: '📧 Email', value: user.email || 'N/A', inline: true },
-                        { name: '🔐 Method', value: method.charAt(0).toUpperCase() + method.slice(1), inline: true },
-                        { name: '🌐 IP', value: ip || 'Unknown', inline: true },
-                        { name: '⏰ Time', value: timestamp, inline: true },
-                        { name: '🎭 Role', value: user.role || 'user', inline: true },
+                        { name: '👤 Username',   value: user.username || 'N/A',                                  inline: true },
+                        { name: '📧 Email',      value: user.email    || 'N/A',                                  inline: true },
+                        { name: '🔐 Method',     value: method.charAt(0).toUpperCase() + method.slice(1),        inline: true },
+                        { name: '🌐 IP',         value: `\`${ip || 'Unknown'}\``,                               inline: true },
+                        { name: '📍 Location',   value: location,                                               inline: true },
+                        { name: '🏢 ISP',        value: isp,                                                    inline: true },
+                        { name: '💻 OS',         value: parsed.os,                                              inline: true },
+                        { name: '🌐 Browser',    value: parsed.browser,                                         inline: true },
+                        { name: '🖥️ Device',    value: parsed.device,                                          inline: true },
+                        { name: '🎭 Role',       value: user.role || 'user',                                    inline: true },
+                        { name: '⏰ Time (PKT)', value: timestamp,                                              inline: true },
                     ],
                     thumbnail: { url: user.avatar_url || '' },
                     footer: { text: 'Script Kittens Auth System' },
@@ -187,7 +235,7 @@ router.post('/register', async (req, res) => {
         );
 
         // Notify Discord — new registration
-        notifyDiscordLogin(user, 'email', getRealIP(req));
+        notifyDiscordLogin(user, 'email', getRealIP(req), req);
 
         return res.status(201).json({
             message: 'Account created successfully',
@@ -268,7 +316,7 @@ router.post('/login', async (req, res) => {
         );
 
         // Notify Discord
-        notifyDiscordLogin(user, 'email', getRealIP(req));
+        notifyDiscordLogin(user, 'email', getRealIP(req), req);
 
         return res.json({
             message: 'Signed in successfully',
