@@ -50,6 +50,10 @@ function logout() {
     localStorage.removeItem('userRole');
     localStorage.removeItem('userAuthMethod');
 
+    // Set sessionStorage flag so login page knows not to auto-redirect
+    // sessionStorage is shared across subdomains on same browser tab
+    sessionStorage.setItem('sk_just_logged_out', '1');
+
     // Call backend to clear HTTP-only cookie + session, THEN redirect
     fetch(API_BASE_URL + '/auth/logout', {
         method: 'POST',
@@ -61,7 +65,7 @@ function logout() {
     })
     .catch(function() {})
     .finally(function() {
-        // Redirect AFTER backend clears the cookie
+        // Redirect with both flags — belt AND suspenders
         window.location.href = 'https://login.script-kittens.com?logged_out=1';
     });
 }

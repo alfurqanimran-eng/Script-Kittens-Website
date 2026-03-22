@@ -380,33 +380,48 @@
      *  9. CHECK IF ALREADY LOGGED IN
      * ───────────────────────────────────────────── */
     (function checkExistingAuth() {
-        // If we just logged out, skip the check entirely
+        // NEVER auto-redirect if we just logged out (sessionStorage flag)
+        if (sessionStorage.getItem('sk_just_logged_out') === '1') {
+            sessionStorage.removeItem('sk_just_logged_out');
+            // Also nuke everything from localStorage to be sure
+            localStorage.removeItem('sk_token');
+            localStorage.removeItem('sk_user');
+            localStorage.removeItem('userLoggedIn');
+            localStorage.removeItem('userDisplayName');
+            localStorage.removeItem('userUsername');
+            localStorage.removeItem('userEmail');
+            localStorage.removeItem('userAvatar');
+            localStorage.removeItem('userRole');
+            localStorage.removeItem('userAuthMethod');
+            return; // stay on login page
+        }
+
+        // Also check URL param fallback
         var params = new URLSearchParams(window.location.search);
         if (params.get('logged_out') === '1') {
-            // Clean URL so refresh doesn't skip check again
             window.history.replaceState({}, '', window.location.pathname);
+            localStorage.removeItem('sk_token');
+            localStorage.removeItem('sk_user');
+            localStorage.removeItem('userLoggedIn');
             return;
         }
 
+        // Only check if token exists in localStorage
         var token = localStorage.getItem('sk_token');
         if (!token) return;
 
-        // Verify token is still valid — use Authorization header only, NOT cookies
-        // (cookies may still exist after logout if backend didn't clear them in time)
+        // Verify with backend — use header only, NOT cookie
         fetch(apiUrl('/api/auth/me'), {
             method: 'GET',
-            headers: {
-                'Authorization': 'Bearer ' + token,
-                'Content-Type': 'application/json',
-            },
-            credentials: 'omit',  // ← explicitly ignore cookies here
+            headers: { 'Authorization': 'Bearer ' + token },
+            credentials: 'omit', // ignore cookies completely
         })
         .then(function (res) {
             if (res.ok) {
-                // Token is still valid — already logged in, go home
+                // Still valid — redirect to homepage
                 window.location.href = 'https://script-kittens.com';
             } else {
-                // Token expired/invalid — clear ALL auth data
+                // Invalid/expired — wipe everything
                 localStorage.removeItem('sk_token');
                 localStorage.removeItem('sk_user');
                 localStorage.removeItem('userLoggedIn');
@@ -419,7 +434,7 @@
             }
         })
         .catch(function () {
-            // Network error — don't redirect, let user try again
+            // Network error — stay on login page, don't redirect
         });
     })();
 
