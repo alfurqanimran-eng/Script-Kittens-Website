@@ -9,6 +9,7 @@ let geoip = null;
 try { geoip = require('geoip-lite'); } catch (e) { console.warn('geoip-lite not installed'); }
 
 const DISCORD_ANALYTICS_WEBHOOK = process.env.DISCORD_ANALYTICS_WEBHOOK || '';
+const DISCORD_SECURITY_WEBHOOK = process.env.DISCORD_SECURITY_WEBHOOK || process.env.DISCORD_ANALYTICS_WEBHOOK || '';
 
 /* ─── Parse User-Agent ─── */
 function parseUserAgent(ua) {
@@ -317,6 +318,91 @@ router.post('/event', async (req, res) => {
         return res.json({ ok: true });
     } catch (err) {
         console.error('Analytics event error:', err);
+        return res.json({ ok: false });
+    }
+});
+
+/* ═══════════════════════════════════════════════ */
+/*  POST /api/analytics/security                   */
+/*  Shield v2.0 — security alerts to Discord       */
+/* ═══════════════════════════════════════════════ */
+router.post('/security', async (req, res) => {
+    try {
+        if (!DISCORD_SECURITY_WEBHOOK) return res.json({ ok: true });
+
+        const ip =
+            req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
+            req.headers['x-real-ip'] ||
+            req.socket?.remoteAddress ||
+            req.ip;
+
+        const geo    = geoip ? geoip.lookup(ip) : null;
+        const ua     = req.headers['user-agent'] || '';
+        const parsed = parseUserAgent(ua);
+        const flag   = geo ? countryFlag(geo.country) : '🌍';
+        const loc    = geo ? `${flag} ${geo.city || 'Unknown'}, ${geo.country || '??'}` : `${flag} Unknown`;
+
+        const { alert, details, page } = req.body;
+
+        const alertLabels = {
+            'devtools':     '🔓 DevTools Opened',
+            'bot':          '🤖 Bot/Scraper Detected',
+            'iframe':       '🖼️ Iframe Embed Attempt',
+            'right_click':  '🖱️ Right-Click Blocked',
+            'copy':         '📋 Copy Attempt Blocked',
+            'view_source':  '👁️ View Source Blocked',
+            'print':        '🖨️ Print Attempt Blocked',
+            'ripper':       '⚠️ Website Ripper Detected',
+        };
+
+        const alertColors = {
+            'devtools':     0xff6600,
+            'bot':          0xff0000,
+            'iframe':       0xff0000,
+            'ripper':       0xff0000,
+            'right_click':  0xffaa00,
+            'copy':         0xffaa00,
+            'view_source':  0xff6600,
+            'print':        0xffaa00,
+        };
+
+        const title = alertLabels[alert] || `⚡ Security: ${alert}`;
+        const color = alertColors[alert] || 0xff0000;
+        const timeStr = new Date().toLocaleString('en-US', { timeZone: 'Asia/Karachi' });
+
+        const embed = {
+            title: `🛡️ ${title} — Script Kittens Shield`,
+            color,
+            fields: [
+                { name: '📄 Page',         value: pageName(page),           inline: true },
+                { name: '🌐 IP',           value: `\`${ip}\``,             inline: true },
+                { name: '📍 Location',     value: loc,                     inline: true },
+                { name: '🖥️ Device',      value: parsed.device,           inline: true },
+                { name: '💻 OS',           value: parsed.os,               inline: true },
+                { name: '🌐 Browser',      value: parsed.browser,          inline: true },
+                { name: '⏰ Time (PKT)',   value: timeStr,                 inline: true },
+            ],
+            timestamp: new Date().toISOString(),
+            footer: { text: 'Script Kittens Shield v2.0' },
+        };
+
+        if (details) {
+            embed.fields.push({
+                name: '📋 Details',
+                value: String(details).slice(0, 500),
+                inline: false,
+            });
+        }
+
+        await fetch(DISCORD_SECURITY_WEBHOOK, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ embeds: [embed] }),
+        });
+
+        return res.json({ ok: true });
+    } catch (err) {
+        console.error('Security alert error:', err);
         return res.json({ ok: false });
     }
 });

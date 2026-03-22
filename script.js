@@ -4073,30 +4073,12 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ============ CONTENT PROTECTION ============ */
-// Block right-click context menu
-document.addEventListener('contextmenu', function(e) {
-    e.preventDefault();
-    return false;
-});
-
-// Block keyboard shortcuts for save/copy/inspect
-document.addEventListener('keydown', function(e) {
-    // Ctrl+S, Ctrl+U, Ctrl+Shift+I, F12
-    if ((e.ctrlKey && (e.key === 's' || e.key === 'u')) ||
-        (e.ctrlKey && e.shiftKey && e.key === 'I') ||
-        e.key === 'F12') {
-        e.preventDefault();
-        return false;
-    }
-});
-
-// Block drag on all images
-document.addEventListener('dragstart', function(e) {
-    if (e.target.tagName === 'IMG') {
-        e.preventDefault();
-        return false;
-    }
-});
+/* NOTE: Full protection is now handled by shield.js
+ * (loaded in <head> on every page).
+ * shield.js covers: right-click, keyboard shortcuts, copy,
+ * drag, print, devtools detection, bot detection,
+ * iframe protection, and more.
+ * This section kept as backup fallback only. */
 
 // ============================================================
 // 21st.dev COMPONENTS — Lightweight Master Engine

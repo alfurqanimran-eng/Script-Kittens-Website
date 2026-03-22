@@ -1,21 +1,106 @@
-# Script Kittens - Hostinger .htaccess
-# Static frontend with subdomains
+# ╔══════════════════════════════════════════════╗
+# ║   Script Kittens — .htaccess Shield          ║
+# ║   Anti-Rip | Anti-Bot | Security Headers     ║
+# ╚══════════════════════════════════════════════╝
 
 RewriteEngine On
 
-# Force HTTPS
+# ═══════════════════════════════════════════════
+#  FORCE HTTPS
+# ═══════════════════════════════════════════════
 RewriteCond %{HTTPS} off
 RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-# If the requested file exists, serve it directly
+# ═══════════════════════════════════════════════
+#  BLOCK WEBSITE RIPPERS & SCRAPERS
+#  (HTTrack, wget, curl, etc.)
+# ═══════════════════════════════════════════════
+RewriteCond %{HTTP_USER_AGENT} (HTTrack|WebCopier|WebZIP|Teleport|Offline\ Explorer|PageSucker|Grab|SiteSnagger|WebReaper|Wget|curl|libwww-perl|Scrapy|python-requests|python-urllib|Go-http-client|Java/|HttpClient|Mechanize|Purebot|Siphon|WebLeacher|NetAnts|FlashGet|GetRight|Mass\ Downloader|Download\ Ninja|WebCrawler|Spider|ia_archiver|archive\.org_bot|MJ12bot|AhrefsBot|SemrushBot|DotBot|Rogerbot|PetalBot|BLEXBot|DataForSeoBot) [NC]
+RewriteRule .* - [F,L]
+
+# ═══════════════════════════════════════════════
+#  BLOCK HEADLESS BROWSERS
+#  (Puppeteer, Playwright, Selenium)
+# ═══════════════════════════════════════════════
+RewriteCond %{HTTP_USER_AGENT} (HeadlessChrome|PhantomJS|Nightmare|Selenium|WebDriver|CasperJS|SlimerJS|Zombie|Splash) [NC]
+RewriteRule .* - [F,L]
+
+# ═══════════════════════════════════════════════
+#  BLOCK EMPTY USER-AGENTS (most bots)
+# ═══════════════════════════════════════════════
+RewriteCond %{HTTP_USER_AGENT} ^$ [NC]
+RewriteCond %{REQUEST_URI} !^/api/ [NC]
+RewriteCond %{REQUEST_URI} !^/analytics [NC]
+RewriteRule .* - [F,L]
+
+# ═══════════════════════════════════════════════
+#  HOTLINK PROTECTION (block image/asset theft)
+# ═══════════════════════════════════════════════
+RewriteCond %{HTTP_REFERER} !^$ [NC]
+RewriteCond %{HTTP_REFERER} !^https?://(www\.)?script-kittens\.com [NC]
+RewriteCond %{HTTP_REFERER} !^https?://login\.script-kittens\.com [NC]
+RewriteCond %{HTTP_REFERER} !^https?://cheats\.script-kittens\.com [NC]
+RewriteCond %{HTTP_REFERER} !^https?://profile\.script-kittens\.com [NC]
+RewriteCond %{HTTP_REFERER} !^https?://api\.script-kittens\.com [NC]
+RewriteCond %{HTTP_REFERER} !^https?://(www\.)?google\. [NC]
+RewriteCond %{HTTP_REFERER} !^https?://(www\.)?googleapis\.com [NC]
+RewriteRule \.(png|jpe?g|gif|svg|webp|ico|mp4|webm|woff2?|ttf|eot)$ - [F,NC,L]
+
+# ═══════════════════════════════════════════════
+#  BLOCK DIRECT ACCESS TO SENSITIVE FILES
+# ═══════════════════════════════════════════════
+<FilesMatch "(\.env|\.git|\.htpasswd|\.DS_Store|thumbs\.db|\.bak|\.old|\.sql|\.log|\.ini|\.conf|composer\.(json|lock)|package\.json|package-lock\.json|node_modules)">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order deny,allow
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Block access to backup files
+RewriteRule \.(bak|old|orig|save|sav|swp|tmp)$ - [F,L]
+# Block .git directory
+RewriteRule ^\.git - [F,L]
+
+# ═══════════════════════════════════════════════
+#  DEFAULT PAGE
+# ═══════════════════════════════════════════════
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-
-# Default to index.html for SPA-like behavior
 RewriteRule ^$ index.html [L]
 
-# ── KILL ALL CACHING for HTML/JS/CSS (forces fresh load every time) ──
+# ═══════════════════════════════════════════════
+#  SECURITY HEADERS
+# ═══════════════════════════════════════════════
 <IfModule mod_headers.c>
+    # ── HSTS — Force HTTPS for 1 year ──
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+
+    # ── Anti-clickjacking ──
+    Header always set X-Frame-Options "SAMEORIGIN"
+
+    # ── Block MIME-type sniffing ──
+    Header always set X-Content-Type-Options "nosniff"
+
+    # ── XSS Protection (legacy but harmless) ──
+    Header always set X-XSS-Protection "1; mode=block"
+
+    # ── Referrer Policy ──
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # ── Permissions Policy (restrict browser features for embedded pages) ──
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(self), payment=(self), usb=(), magnetometer=(), gyroscope=(), accelerometer=()"
+
+    # ── Content Security Policy ──
+    # Allows: self, Google Fonts, GSAP CDN, Font Awesome, YouTube, Stripe
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://js.stripe.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https: http:; connect-src 'self' https://api.script-kittens.com https://script-kittens.com https://*.script-kittens.com; frame-src https://www.youtube.com https://discord.com https://js.stripe.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self' https://api.script-kittens.com"
+
+    # ── Remove server version info ──
+    Header unset X-Powered-By
+    Header unset Server
+
     # HTML — never cache
     <FilesMatch "\.(html|htm)$">
         Header set Cache-Control "no-cache, no-store, must-revalidate"
@@ -29,25 +114,28 @@ RewriteRule ^$ index.html [L]
         Header set Pragma "no-cache"
         Header set Expires "0"
     </FilesMatch>
-
-    # Security Headers
-    Header set X-Content-Type-Options "nosniff"
-    Header set X-Frame-Options "SAMEORIGIN"
-    Header set X-XSS-Protection "1; mode=block"
-    Header set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>
 
-# Disable LiteSpeed Cache for HTML/JS/CSS
+# ═══════════════════════════════════════════════
+#  DISABLE DIRECTORY LISTING
+# ═══════════════════════════════════════════════
+Options -Indexes
+
+# ═══════════════════════════════════════════════
+#  DISABLE SERVER SIGNATURE
+# ═══════════════════════════════════════════════
+ServerSignature Off
+
+# ═══════════════════════════════════════════════
+#  LITESPEED CACHE (Hostinger uses LiteSpeed)
+# ═══════════════════════════════════════════════
 <IfModule LiteSpeed>
     CacheDisable public /
 </IfModule>
 
-# Kill any expires caching for now
-<IfModule mod_expires.c>
-    ExpiresActive Off
-</IfModule>
-
-# Cache ONLY images/fonts (these don't change)
+# ═══════════════════════════════════════════════
+#  EXPIRES — Cache ONLY static assets
+# ═══════════════════════════════════════════════
 <IfModule mod_expires.c>
     ExpiresActive On
     ExpiresByType image/png "access plus 1 year"
@@ -58,7 +146,9 @@ RewriteRule ^$ index.html [L]
     ExpiresByType font/woff2 "access plus 1 year"
 </IfModule>
 
-# Gzip compression
+# ═══════════════════════════════════════════════
+#  GZIP COMPRESSION
+# ═══════════════════════════════════════════════
 <IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json
+    AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml
 </IfModule>
