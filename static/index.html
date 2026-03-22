@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=yes">
+    <title>Script Kittens Friend Request Spam Website</title>
+    <meta name="description" content="High-performance friend request processing system">
+    <link rel="icon" type="image/png" href="/favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        .form-label {
+            font-size: 1.3rem;
+            font-weight: bold;
+            background: linear-gradient(90deg, #8f00ff, #9c5999);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-mesh"></div>
+    <div class="bg-grid"></div>
+
+    <div class="container">
+        <header>
+            <div class="brand">
+                <h1>Script Kittens <span>Friend Request Spam</span> Website</h1>
+                <p>Friend Request Processing System</p>
+            </div>
+
+            <nav class="nav-tabs">
+                <button class="nav-tab active" data-tab="tester">Spam Friend Requests</button>
+                <button class="nav-tab" data-tab="docs">About Script Kittens</button>
+            </nav>
+        </header>
+
+        <main>
+                <!-- API Tester Section -->
+            <section id="tester" class="tab-content active">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 style="text-align: center;">Send Friend Request</h2>
+                        <p style="text-align: center; color: #9b9b9b;">Use the form below to send friend requests to a player by their UID. Select the appropriate server region before submitting your request.</p>
+                    </div>
+
+                    <form id="apiForm">
+                        <div class="form-group">
+                            <label class="form-label" for="uid">Player UID</label>
+                            <input type="text" class="form-input" id="uid" placeholder="Enter player UID..."
+                                autocomplete="off" required>
+                        </div>
+
+                         <div class="form-group">
+                            <label class="form-label">Server Region</label>
+                            <input type="hidden" id="server" name="server" value="PK" required>
+                            <div class="server-grid" id="serverGrid">
+                                <button type="button" class="server-btn active" data-server="PK">🇵🇰<span>Pakistan</span></button>
+                                <button type="button" class="server-btn" data-server="IND">🇮🇳<span>India</span></button>
+                                <button type="button" class="server-btn" data-server="BR">🇧🇷<span>Brazil</span></button>
+                                <button type="button" class="server-btn" data-server="US">🇺🇸<span>United States</span></button>
+                                <button type="button" class="server-btn" data-server="NA">🌎<span>North America</span></button>
+                                <button type="button" class="server-btn" data-server="SAC">🌎<span>South America</span></button>
+                                <button type="button" class="server-btn" data-server="EU">🇪🇺<span>Europe</span></button>
+                                <button type="button" class="server-btn" data-server="ME">🌍<span>Middle East</span></button>
+                                <button type="button" class="server-btn" data-server="AFR">🌍<span>Africa</span></button>
+                                <button type="button" class="server-btn" data-server="RU">🇷🇺<span>Russia</span></button>
+                                <button type="button" class="server-btn" data-server="ID">🇮🇩<span>Indonesia</span></button>
+                                <button type="button" class="server-btn" data-server="TH">🇹🇭<span>Thailand</span></button>
+                                <button type="button" class="server-btn" data-server="VN">🇻🇳<span>Vietnam</span></button>
+                                <button type="button" class="server-btn" data-server="SG">🇸🇬<span>Singapore</span></button>
+                                <button type="button" class="server-btn" data-server="MY">🇲🇾<span>Malaysia</span></button>
+                                <button type="button" class="server-btn" data-server="PH">🇵🇭<span>Philippines</span></button>
+                                <button type="button" class="server-btn" data-server="BD">🇧🇩<span>Bangladesh</span></button>
+                                <button type="button" class="server-btn" data-server="Other">🌐<span>Other</span></button>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn" id="submitBtn">
+                            Execute Request
+                        </button>
+
+                       
+                    </form>
+
+                    <div class="response-panel" id="responsePanel">
+                        <div class="response-summary">
+                            <div class="response-header">
+                                <h3>Response</h3>
+                                <span class="status-badge" id="statusBadge"></span>
+                            </div>
+                            
+                            <div class="response-cards" id="responseCards">
+                                <!-- Cards will be dynamically inserted here -->
+                            </div>
+
+                            <div class="raw-json-section">
+                                <button class="json-toggle" id="jsonToggle">
+                                    <span>View Raw JSON</span>
+                                    <span class="json-toggle-icon">▼</span>
+                                </button>
+                                <div class="response-body" id="responseBody">
+                                    <pre id="responseData"></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- Usage Limit Info Card (separate block) -->
+                <div class="limit-info-outer">
+                    <div class="limit-info-card">
+                        <div class="limit-info-icon">🔒</div>
+                        <div class="limit-info-content">
+                            <div class="limit-info-title">Limited Usage</div>
+                            <div class="limit-info-desc">
+                                You can use this service <b>5 times per day</b> from the website.<br>
+                                For <b>unlimited access</b> <a href="https://discord.gg/AqkdsPMU7M" target="_blank" class="limit-discord-link">Join Our Discord</a> and use the bot!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <h4>Parallel Processing</h4>
+                            <p>Execute up to 100 simultaneous friend requests using multi-threaded architecture.</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>Token Rotation</h4>
+                            <p>Automatic token management with built-in failover mechanisms for reliability.</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>Real-time Stats</h4>
+                            <p>Get detailed success and failure statistics with player information.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+
+            <!-- Documentation Section -->
+            <section id="docs" class="tab-content">
+                <div class="card">
+                    <div class="card-header" style="margin-bottom: 2.5rem;">
+                        <h2 style="font-size:2.2rem; margin-bottom:0.5rem;">About Our Server & Studio</h2>
+                        <p style="font-size:1.15rem; color:#9b9b9b;">Welcome to <b>Script Kittens Studio</b> — your trusted partner for professional programming, web development, and Free Fire solutions.</p>
+                    </div>
+                    <div class="about-content" style="display:flex; flex-direction:column; gap:2.5rem;">
+                        <div class="about-section" style="margin-bottom:1.5rem;">
+                            <h3 style="font-size:1.3rem; margin-bottom:0.5rem;">Who We Are</h3>
+                            <p style="font-size:1.08rem; color:#9b9b9b;">Script Kittens Studio is a team of experienced developers specializing in building high-quality programs, websites, and custom solutions for the Free Fire community. We are passionate about technology and committed to delivering professional-grade products and services.</p>
+                        </div>
+                        <div class="about-section" style="margin-bottom:1.5rem;">
+                            <h3 style="font-size:1.3rem; margin-bottom:0.5rem;">What We Do</h3>
+                            <ul style="font-size:1.08rem; color:#9b9b9b; margin-left:1.2rem; line-height:1.7;">
+                                <li>Develop advanced Free Fire tools, mods, menus, and automation scripts</li>
+                                <li>Create modern, responsive websites and web applications</li>
+                                <li>Offer custom programming and automation services</li>
+                                <li>Build and maintain secure, scalable server solutions</li>
+                            </ul>
+                        </div>
+                        <div class="about-section" style="margin-bottom:1.5rem;">
+                            <h3 style="font-size:1.3rem; margin-bottom:0.5rem;">API Pricing</h3>
+                            <div class="pricing-table" style="display:flex; justify-content:center; gap:2.5rem; margin:1.5rem 0;">
+                                <div class="pricing-plan" style="background:#f7f7fa; border-radius:1.2rem; box-shadow:0 2px 12px #0001; padding:2rem 2.5rem; text-align:center; min-width:180px;">
+                                    <h4 style="font-size:1.2rem; margin-bottom:0.7rem; color:#2b7cff;">Weekly Access</h4>
+                                    <p class="price" style="font-size:2.2rem; font-weight:700; color:#222; margin-bottom:0.2rem;">$2 <span style="font-size:1rem; color:#888; font-weight:400;">/ week</span></p>
+                                </div>
+                                <div class="pricing-plan" style="background:#f7f7fa; border-radius:1.2rem; box-shadow:0 2px 12px #0001; padding:2rem 2.5rem; text-align:center; min-width:180px;">
+                                    <h4 style="font-size:1.2rem; margin-bottom:0.7rem; color:#2b7cff;">Monthly Access</h4>
+                                    <p class="price" style="font-size:2.2rem; font-weight:700; color:#222; margin-bottom:0.2rem;">$5 <span style="font-size:1rem; color:#888; font-weight:400;">/ month</span></p>
+                                </div>
+                            </div>
+                            <p class="pricing-note" style="text-align:center; color:#555; font-size:1.08rem;">Contact us to purchase API access or for custom plans.</p>
+                        </div>
+                        <div class="about-section" style="margin-bottom:1.5rem;">
+                            <h3 style="font-size:1.3rem; margin-bottom:0.5rem; text-align:center;">Join Our Community</h3>
+                            <p style="text-align:center; color:#444; font-size:1.08rem;">Connect with us and get support, updates, and exclusive offers on our Discord server:</p>
+                            <div style="display:flex; justify-content:center; margin-top:1.2rem;">
+                                <a href="https://discord.gg/AqkdsPMU7M" class="discord-link" target="_blank" style="display:inline-block; background:#5865F2; color:#fff; font-size:1.25rem; font-weight:600; padding:1rem 2.5rem; border-radius:2.5rem; box-shadow:0 4px 16px #5865f244; text-decoration:none; transition:background 0.2s; letter-spacing:0.5px;">Join Script Kittens Discord &rarr;</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 Script Kittens Studio</p>
+        </footer>
+    </div>
+
+    <script src="/static/main.js"></script>
+</body>
+
+</html>

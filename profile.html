@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <!-- ═══ PRIMARY SEO ═══ -->
+    <title>My Profile | Script Kittens</title>
+    <meta name="description" content="Manage your Script Kittens account, subscriptions, and settings.">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="canonical" href="https://script-kittens.com/profile">
+
+    <!-- ═══ OPEN GRAPH ═══ -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Script Kittens">
+    <meta property="og:title" content="My Profile | Script Kittens">
+    <meta property="og:description" content="Manage your Script Kittens account and settings.">
+    <meta property="og:url" content="https://script-kittens.com/profile">
+    <meta property="og:image" content="https://script-kittens.com/logo.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/gif" href="https://script-kittens.com/static/favicon.gif">
+    <link rel="icon" type="image/png" href="https://script-kittens.com/favicon.png">
+    <link rel="shortcut icon" href="https://script-kittens.com/static/favicon.gif">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://script-kittens.com/profile.css?v=44.0">
+    <link rel="stylesheet" href="https://script-kittens.com/login-premium.css?v=2.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+</head>
+
+<body class="profile-page">
+    <div class="page-swipe" id="pageSwipe"></div>
+    <script>if (sessionStorage.getItem('pageSwipe') === '1') { document.getElementById('pageSwipe').style.opacity = '1'; }</script>
+
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
+
+    <div class="bg-effects-layer">
+        <canvas id="particles-canvas"></canvas>
+        <div class="floating-orbs">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
+            <div class="orb orb-4"></div>
+            <div class="orb orb-5"></div>
+        </div>
+        <div class="grid-overlay"></div>
+        <div class="scan-line"></div>
+    </div>
+
+    <header class="profile-navbar" id="profileNavbar">
+        <div class="navbar-glow"></div>
+        <div class="navbar-shimmer"></div>
+        <div class="navbar-inner">
+            <a href="https://script-kittens.com" class="navbar-brand">
+                <span class="navbar-brand-name">SCRIPT <span class="navbar-brand-accent">KITTENS</span></span>
+            </a>
+            <nav class="navbar-links">
+                <div class="navbar-links-bg"></div>
+                <a href="https://script-kittens.com" class="navbar-link"><i class="fas fa-home"></i><span>Home</span></a>
+                <a href="https://cheats.script-kittens.com" class="navbar-link"><i class="fas fa-gamepad"></i><span>Cheats</span></a>
+                <a href="https://profile.script-kittens.com" class="navbar-link active"><i
+                        class="fas fa-user-circle"></i><span>Profile</span></a>
+            </nav>
+            <div class="navbar-actions">
+                <button class="navbar-action-btn navbar-search-btn" aria-label="Search">
+                    <i class="fas fa-search"></i>
+                </button>
+                <button class="navbar-action-btn navbar-notification-btn" aria-label="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="notif-dot"></span>
+                    <span class="notif-ping"></span>
+                </button>
+                <div class="navbar-divider-v"></div>
+                <div class="navbar-avatar">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%238f00ff'/%3E%3Cstop offset='100%25' stop-color='%2300f0ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='60' cy='60' r='60' fill='url(%23g)'/%3E%3Ccircle cx='60' cy='45' r='20' fill='rgba(255,255,255,0.9)'/%3E%3Cellipse cx='60' cy='95' rx='35' ry='25' fill='rgba(255,255,255,0.9)'/%3E%3C/svg%3E"
+                        alt="Avatar" id="navAvatar">
+                    <span class="navbar-avatar-ring"></span>
+                    <span class="navbar-avatar-status"></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Fullscreen Button -->
+    <div class="top-controls">
+        <button class="control-btn" id="fullscreenBtn" aria-label="Toggle Fullscreen" title="Toggle Fullscreen">
+            <i class="fas fa-expand" id="fullscreenIcon"></i>
+        </button>
+    </div>
+
+    <div class="profile-container" id="profileContainer">
+
+        <div class="profile-header" id="profileHeader">
+            <div class="profile-banner">
+                <div class="banner-gradient"></div>
+                <div class="banner-mesh"></div>
+                <div class="banner-particles">
+                    <div class="b-particle b-p1"></div>
+                    <div class="b-particle b-p2"></div>
+                    <div class="b-particle b-p3"></div>
+                    <div class="b-particle b-p4"></div>
+                    <div class="b-particle b-p5"></div>
+                    <div class="b-particle b-p6"></div>
+                    <div class="b-particle b-p7"></div>
+                    <div class="b-particle b-p8"></div>
+                </div>
+                <div class="banner-bottom-glow"></div>
+            </div>
+
+            <div class="profile-body">
+                <div class="profile-identity-row">
+                    <div class="avatar-container">
+                        <div class="avatar-glow"></div>
+                        <div class="avatar-ring">
+                            <svg class="ring-svg" viewBox="0 0 200 200">
+                                <defs>
+                                    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#8f00ff" />
+                                        <stop offset="33%" style="stop-color:#ff00a8" />
+                                        <stop offset="66%" style="stop-color:#00f0ff" />
+                                        <stop offset="100%" style="stop-color:#8f00ff" />
+                                    </linearGradient>
+                                </defs>
+                                <circle cx="100" cy="100" r="92" fill="none" stroke="url(#ringGrad)" stroke-width="3"
+                                    stroke-dasharray="8 4" />
+                            </svg>
+                        </div>
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%238f00ff'/%3E%3Cstop offset='100%25' stop-color='%2300f0ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='60' cy='60' r='60' fill='url(%23g)'/%3E%3Ccircle cx='60' cy='45' r='20' fill='rgba(255,255,255,0.9)'/%3E%3Cellipse cx='60' cy='95' rx='35' ry='25' fill='rgba(255,255,255,0.9)'/%3E%3C/svg%3E"
+                            alt="Profile Avatar" id="profileAvatar" class="avatar-img">
+                        <div class="avatar-upload-overlay" id="avatarOverlay">
+                            <i class="fas fa-camera"></i>
+                            <span>Change</span>
+                        </div>
+                        <input type="file" id="avatarFileInput"
+                            accept="image/*,.jpg,.jpeg,.png,.gif,.webp,.jfif,.heic,.heif,.avif" style="display:none;">
+                        <button class="edit-avatar-btn" id="editAvatarBtn" aria-label="Change Avatar">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                        <div class="avatar-status online" id="avatarStatusDot">
+                            <span class="pulse-ring"></span>
+                        </div>
+                    </div>
+
+                    <div class="profile-info-col">
+                        <div class="profile-name-row">
+                            <h1 class="profile-name" id="profileNameDisplay">Guest</h1>
+                            <div class="profile-badges" id="profileBadges"></div>
+                        </div>
+                        <div class="profile-sub-row">
+                            <span class="profile-username" id="profileUsernameDisplay">@guest</span>
+                            <span class="profile-pronouns-inline" id="profilePronounsCard"></span>
+                        </div>
+                        <div class="profile-meta-row">
+                            <div class="connected-methods-row" id="connectedMethodsRow"></div>
+                            <div class="status-wrapper">
+                                <button class="status-selector" id="statusSelector" aria-label="Change Status">
+                                    <i class="fas fa-circle status-dot" id="statusDotIcon"></i>
+                                    <span id="currentStatus">Available</span>
+                                    <i class="fas fa-chevron-down status-chevron"></i>
+                                </button>
+                                <div class="status-dropdown" id="statusDropdown">
+                                    <button class="status-option" data-status="Available" data-color="#10b981"
+                                        aria-label="Set status to Available">
+                                        <i class="fas fa-circle" style="color:#10b981"></i><span>Available</span>
+                                    </button>
+                                    <button class="status-option" data-status="Busy" data-color="#ef4444"
+                                        aria-label="Set status to Busy">
+                                        <i class="fas fa-circle" style="color:#ef4444"></i><span>Busy</span>
+                                    </button>
+                                    <button class="status-option" data-status="Away" data-color="#f59e0b"
+                                        aria-label="Set status to Away">
+                                        <i class="fas fa-circle" style="color:#f59e0b"></i><span>Away</span>
+                                    </button>
+                                    <button class="status-option" data-status="Do Not Disturb" data-color="#dc2626"
+                                        aria-label="Set status to Do Not Disturb">
+                                        <i class="fas fa-minus-circle" style="color:#dc2626"></i><span>Do Not
+                                            Disturb</span>
+                                    </button>
+                                    <button class="status-option" data-status="Invisible" data-color="#6b7280"
+                                        aria-label="Set status to Invisible">
+                                        <i class="fas fa-circle" style="color:#6b7280"></i><span>Invisible</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="profile-right-col">
+                        <div class="completion-mini" id="profileCompletion">
+                            <svg class="completion-ring-svg" viewBox="0 0 80 80">
+                                <defs>
+                                    <linearGradient id="completionGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#8f00ff" />
+                                        <stop offset="50%" style="stop-color:#ff00a8" />
+                                        <stop offset="100%" style="stop-color:#00f0ff" />
+                                    </linearGradient>
+                                </defs>
+                                <circle class="completion-track" cx="40" cy="40" r="34" fill="none"
+                                    stroke="rgba(255,255,255,0.04)" stroke-width="4" />
+                                <circle class="completion-progress" cx="40" cy="40" r="34" fill="none"
+                                    stroke="url(#completionGrad)" stroke-width="4" stroke-dasharray="0 214"
+                                    stroke-linecap="round" id="completionPath" transform="rotate(-90 40 40)" />
+                            </svg>
+                            <div class="completion-center">
+                                <span class="completion-percent" id="completionPercent">0%</span>
+                            </div>
+                        </div>
+                        <div class="completion-fields-compact" id="completionFields">
+                            <div class="completion-field" data-field="display_name"><i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="completion-field" data-field="username"><i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="completion-field" data-field="email"><i class="fas fa-check-circle"></i></div>
+                            <div class="completion-field" data-field="bio"><i class="fas fa-check-circle"></i></div>
+                            <div class="completion-field" data-field="avatar"><i class="fas fa-check-circle"></i></div>
+                            <div class="completion-field" data-field="pronouns"><i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="completion-field" data-field="location"><i class="fas fa-check-circle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-xp-section" id="profileXpSection">
+                    <div class="xp-info">
+                        <span class="xp-level"><i class="fas fa-bolt"></i> Level <span id="xpLevelNum">1</span></span>
+                        <span class="xp-progress-text"><span id="xpCurrent">0</span> / <span id="xpMax">100</span>
+                            XP</span>
+                    </div>
+                    <div class="xp-bar-track">
+                        <div class="xp-bar-fill" id="xpBarFill" style="width: 0%"></div>
+                        <div class="xp-bar-glow"></div>
+                    </div>
+                </div>
+
+                <div class="profile-divider"></div>
+
+                <div class="about-me-section">
+                    <div class="about-me-header">
+                        <h3><i class="fas fa-quote-left"></i> About Me</h3>
+                        <button class="edit-about-btn" id="editAboutBtn" aria-label="Edit About Me"><i
+                                class="fas fa-pen"></i></button>
+                    </div>
+                    <div class="about-me-content">
+                        <p id="aboutMeText">I Love Script Kittens</p>
+                    </div>
+                    <div class="about-me-edit" id="aboutMeEdit" style="display:none;">
+                        <textarea id="aboutMeTextarea" rows="3"></textarea>
+                        <div class="about-edit-actions">
+                            <button class="btn-small-primary" id="saveAboutBtn" aria-label="Save About"><i
+                                    class="fas fa-check"></i> Save</button>
+                            <button class="btn-small-secondary" id="cancelAboutBtn" aria-label="Cancel Edit"><i
+                                    class="fas fa-times"></i> Cancel</button>
+                        </div>
+                    </div>
+                    <div class="about-me-details">
+                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span>Member since <strong
+                                    id="memberSince">January 2024</strong></span></div>
+                        <div class="detail-item"><i class="fas fa-map-marker-alt"></i><span id="locationDisplay"></span>
+                        </div>
+                        <div class="detail-item"><i class="fas fa-user-tag"></i><span id="pronounsDisplay"></span></div>
+                    </div>
+                    <div class="profile-social-links" id="profileSocialLinks">
+                        <div class="social-link-icon" data-provider="discord" title="Discord"><i
+                                class="fab fa-discord"></i></div>
+                        <div class="social-link-icon" data-provider="github" title="GitHub"><i
+                                class="fab fa-github"></i></div>
+                        <div class="social-link-icon" data-provider="google" title="Google"><i
+                                class="fab fa-google"></i></div>
+                        <div class="social-link-icon" data-provider="twitter" title="Twitter"><i
+                                class="fab fa-x-twitter"></i></div>
+                        <div class="social-link-icon" data-provider="twitch" title="Twitch"><i
+                                class="fab fa-twitch"></i></div>
+                        <div class="social-link-icon" data-provider="steam" title="Steam"><i class="fab fa-steam"></i>
+                        </div>
+                        <div class="social-link-icon" data-provider="spotify" title="Spotify"><i
+                                class="fab fa-spotify"></i></div>
+                        <div class="social-link-icon" data-provider="youtube" title="YouTube"><i
+                                class="fab fa-youtube"></i></div>
+                        <div class="social-link-icon" data-provider="reddit" title="Reddit"><i
+                                class="fab fa-reddit-alien"></i></div>
+                        <div class="social-link-icon" data-provider="epic" title="Epic Games"><i
+                                class="fas fa-gamepad"></i></div>
+                        <div class="social-link-icon" data-provider="playstation" title="PlayStation"><i
+                                class="fab fa-playstation"></i></div>
+                        <div class="social-link-icon" data-provider="xbox" title="Xbox"><i class="fab fa-xbox"></i>
+                        </div>
+                        <div class="social-link-icon" data-provider="battlenet" title="Battle.net"><i
+                                class="fas fa-hat-wizard"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-container" id="statsContainer">
+            <div class="stat-card" data-stat="points">
+                <div class="stat-card-glow"></div>
+                <div class="stat-icon-wrap"><i class="fas fa-fire"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value" data-target="0">0</div>
+                    <div class="stat-label">Points</div>
+                </div>
+            </div>
+            <div class="stat-card" data-stat="achievements">
+                <div class="stat-card-glow"></div>
+                <div class="stat-icon-wrap"><i class="fas fa-trophy"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value" data-target="0">0</div>
+                    <div class="stat-label">Achievements</div>
+                </div>
+            </div>
+            <div class="stat-card" data-stat="followers">
+                <div class="stat-card-glow"></div>
+                <div class="stat-icon-wrap"><i class="fas fa-users"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value" data-target="0">0</div>
+                    <div class="stat-label">Followers</div>
+                </div>
+            </div>
+            <div class="stat-card" data-stat="level">
+                <div class="stat-card-glow"></div>
+                <div class="stat-icon-wrap"><i class="fas fa-chart-line"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value" data-target="0">0</div>
+                    <div class="stat-label">Level</div>
+                </div>
+            </div>
+            <div class="stat-card" data-stat="games">
+                <div class="stat-card-glow"></div>
+                <div class="stat-icon-wrap"><i class="fas fa-gamepad"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value" data-target="0">0</div>
+                    <div class="stat-label">Games</div>
+                </div>
+            </div>
+            <div class="stat-card" data-stat="downloads">
+                <div class="stat-card-glow"></div>
+                <div class="stat-icon-wrap"><i class="fas fa-download"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value" data-target="0">0</div>
+                    <div class="stat-label">Downloads</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="rank-tier-section" id="rankTierSection">
+            <div class="rank-card">
+                <div class="rank-card-bg"></div>
+                <div class="rank-card-border"></div>
+                <div class="rank-card-inner">
+                    <div class="rank-emblem" id="rankEmblem">
+                        <div class="rank-emblem-ring"></div>
+                        <div class="rank-emblem-icon"><i class="fas fa-shield-alt"></i></div>
+                        <div class="rank-emblem-particles">
+                            <span></span><span></span><span></span><span></span><span></span><span></span>
+                        </div>
+                    </div>
+                    <div class="rank-info">
+                        <div class="rank-tier-label">Current Rank</div>
+                        <div class="rank-tier-name" id="rankTierName">Bronze</div>
+                        <div class="rank-tier-subtitle" id="rankTierSubtitle">Keep grinding to reach Silver!</div>
+                    </div>
+                    <div class="rank-progress-wrap">
+                        <div class="rank-progress-bar">
+                            <div class="rank-progress-fill" id="rankProgressFill"></div>
+                            <div class="rank-progress-glow"></div>
+                        </div>
+                        <div class="rank-progress-labels">
+                            <span id="rankCurrentLabel">Bronze</span>
+                            <span id="rankNextLabel">Silver</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="rank-tiers-row" id="rankTiersRow">
+                    <div class="rank-tier-pip" data-tier="bronze" title="Bronze"><i class="fas fa-shield-alt"></i></div>
+                    <div class="rank-tier-pip" data-tier="silver" title="Silver"><i class="fas fa-shield-alt"></i></div>
+                    <div class="rank-tier-pip" data-tier="gold" title="Gold"><i class="fas fa-crown"></i></div>
+                    <div class="rank-tier-pip" data-tier="diamond" title="Diamond"><i class="fas fa-gem"></i></div>
+                    <div class="rank-tier-pip" data-tier="master" title="Master"><i class="fas fa-star"></i></div>
+                    <div class="rank-tier-pip" data-tier="legend" title="Legend"><i class="fas fa-dragon"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="achievements-section" id="achievementsSection">
+            <div class="section-header-pro">
+                <div class="section-header-icon"><i class="fas fa-medal"></i></div>
+                <div class="section-header-text">
+                    <h2>Achievement Showcase</h2>
+                    <p>Your earned badges and milestones</p>
+                </div>
+                <div class="section-header-line"></div>
+            </div>
+            <div class="achievements-grid" id="achievementsGrid">
+                <div class="achievement-card unlocked" data-achievement="first-login">
+                    <div class="achievement-glow"></div>
+                    <div class="achievement-icon"><i class="fas fa-door-open"></i></div>
+                    <div class="achievement-info">
+                        <span class="achievement-name">First Login</span>
+                        <span class="achievement-desc">Welcome to Script Kittens</span>
+                    </div>
+                    <div class="achievement-rarity common">Common</div>
+                </div>
+                <div class="achievement-card unlocked" data-achievement="profile-setup">
+                    <div class="achievement-glow"></div>
+                    <div class="achievement-icon"><i class="fas fa-user-check"></i></div>
+                    <div class="achievement-info">
+                        <span class="achievement-name">Identity Set</span>
+                        <span class="achievement-desc">Complete your profile</span>
+                    </div>
+                    <div class="achievement-rarity uncommon">Uncommon</div>
+                </div>
+                <div class="achievement-card unlocked" data-achievement="social-butterfly">
+                    <div class="achievement-glow"></div>
+                    <div class="achievement-icon"><i class="fas fa-link"></i></div>
+                    <div class="achievement-info">
+                        <span class="achievement-name">Social Butterfly</span>
+                        <span class="achievement-desc">Connect 3+ platforms</span>
+                    </div>
+                    <div class="achievement-rarity rare">Rare</div>
+                </div>
+                <div class="achievement-card locked" data-achievement="streak-7">
+                    <div class="achievement-glow"></div>
+                    <div class="achievement-icon"><i class="fas fa-fire-alt"></i></div>
+                    <div class="achievement-info">
+                        <span class="achievement-name">On Fire</span>
+                        <span class="achievement-desc">7-day login streak</span>
+                    </div>
+                    <div class="achievement-rarity epic">Epic</div>
+                </div>
+                <div class="achievement-card locked" data-achievement="level-50">
+                    <div class="achievement-glow"></div>
+                    <div class="achievement-icon"><i class="fas fa-rocket"></i></div>
+                    <div class="achievement-info">
+                        <span class="achievement-name">Rocketeer</span>
+                        <span class="achievement-desc">Reach Level 50</span>
+                    </div>
+                    <div class="achievement-rarity epic">Epic</div>
+                </div>
+                <div class="achievement-card locked" data-achievement="top-contributor">
+                    <div class="achievement-glow"></div>
+                    <div class="achievement-icon"><i class="fas fa-dragon"></i></div>
+                    <div class="achievement-info">
+                        <span class="achievement-name">Legendary</span>
+                        <span class="achievement-desc">Top 1% contributor</span>
+                    </div>
+                    <div class="achievement-rarity legendary">Legendary</div>
+                </div>
+                <div class="achievement-card locked" data-achievement="collector">
+                    <div class="achievement-glow"></div>
+                    <div class="achievement-icon"><i class="fas fa-layer-group"></i></div>
+                    <div class="achievement-info">
+                        <span class="achievement-name">Collector</span>
+                        <span class="achievement-desc">Download 100 tools</span>
+                    </div>
+                    <div class="achievement-rarity rare">Rare</div>
+                </div>
+                <div class="achievement-card locked" data-achievement="veteran">
+                    <div class="achievement-glow"></div>
+                    <div class="achievement-icon"><i class="fas fa-chess-king"></i></div>
+                    <div class="achievement-info">
+                        <span class="achievement-name">Veteran</span>
+                        <span class="achievement-desc">1 year member</span>
+                    </div>
+                    <div class="achievement-rarity legendary">Legendary</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="activity-section" id="activitySection">
+            <div class="section-header-pro">
+                <div class="section-header-icon"><i class="fas fa-stream"></i></div>
+                <div class="section-header-text">
+                    <h2>Recent Activity</h2>
+                    <p>Your latest actions and events</p>
+                </div>
+                <div class="section-header-line"></div>
+            </div>
+            <div class="activity-timeline" id="activityTimeline">
+                <div class="activity-item" data-type="login">
+                    <div class="activity-dot-wrap">
+                        <div class="activity-dot"></div>
+                        <div class="activity-line"></div>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-icon-wrap"><i class="fas fa-sign-in-alt"></i></div>
+                        <div class="activity-body">
+                            <span class="activity-action">Logged in</span>
+                            <span class="activity-details">Signed in via Google OAuth</span>
+                            <span class="activity-time"><i class="far fa-clock"></i> Just now</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="activity-item" data-type="profile">
+                    <div class="activity-dot-wrap">
+                        <div class="activity-dot"></div>
+                        <div class="activity-line"></div>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-icon-wrap"><i class="fas fa-user-edit"></i></div>
+                        <div class="activity-body">
+                            <span class="activity-action">Profile Updated</span>
+                            <span class="activity-details">Changed display name and bio</span>
+                            <span class="activity-time"><i class="far fa-clock"></i> 2 hours ago</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="activity-item" data-type="achievement">
+                    <div class="activity-dot-wrap">
+                        <div class="activity-dot"></div>
+                        <div class="activity-line"></div>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-icon-wrap achievement-activity"><i class="fas fa-trophy"></i></div>
+                        <div class="activity-body">
+                            <span class="activity-action">Achievement Unlocked!</span>
+                            <span class="activity-details">Earned "First Login" badge</span>
+                            <span class="activity-time"><i class="far fa-clock"></i> 1 day ago</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="activity-item" data-type="connection">
+                    <div class="activity-dot-wrap">
+                        <div class="activity-dot"></div>
+                        <div class="activity-line"></div>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-icon-wrap"><i class="fas fa-link"></i></div>
+                        <div class="activity-body">
+                            <span class="activity-action">Account Connected</span>
+                            <span class="activity-details">Linked Discord account</span>
+                            <span class="activity-time"><i class="far fa-clock"></i> 3 days ago</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="activity-item" data-type="security">
+                    <div class="activity-dot-wrap">
+                        <div class="activity-dot"></div>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-icon-wrap"><i class="fas fa-shield-alt"></i></div>
+                        <div class="activity-body">
+                            <span class="activity-action">Account Created</span>
+                            <span class="activity-details">Welcome to Script Kittens!</span>
+                            <span class="activity-time"><i class="far fa-clock"></i> Jan 2024</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-wrapper">
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <i class="fas fa-sliders-h"></i>
+                    <span>Settings</span>
+                </div>
+                <nav class="nav-menu">
+                    <button class="nav-item active" data-tab="general" aria-label="General Settings">
+                        <div class="nav-icon"><i class="fas fa-user"></i></div>
+                        <span>General</span>
+                    </button>
+                    <button class="nav-item" data-tab="account" aria-label="Account Settings">
+                        <div class="nav-icon"><i class="fas fa-cog"></i></div>
+                        <span>Account</span>
+                    </button>
+                    <button class="nav-item" data-tab="privacy" aria-label="Privacy Settings">
+                        <div class="nav-icon"><i class="fas fa-shield-alt"></i></div>
+                        <span>Privacy</span>
+                    </button>
+                    <button class="nav-item" data-tab="notifications" aria-label="Notification Settings">
+                        <div class="nav-icon"><i class="fas fa-bell"></i></div>
+                        <span>Notifications</span>
+                    </button>
+                    <button class="nav-item" data-tab="security" aria-label="Security Settings">
+                        <div class="nav-icon"><i class="fas fa-lock"></i></div>
+                        <span>Security</span>
+                    </button>
+                </nav>
+            </aside>
+
+            <div class="content-area">
+
+                <section class="tab-content active" id="general-tab">
+                    <div class="tab-header">
+                        <h2><i class="fas fa-user"></i> General Information</h2>
+                        <p>Manage your personal information and profile details</p>
+                    </div>
+                    <div class="form-container">
+                        <div class="form-row">
+                            <div class="input-group">
+                                <label for="displayName"><i class="fas fa-user"></i> Display Name</label>
+                                <input type="text" id="displayName" placeholder="Enter your display name">
+                            </div>
+                            <div class="input-group">
+                                <label for="username"><i class="fas fa-at"></i> Username</label>
+                                <input type="text" id="username" placeholder="Enter your username">
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="email"><i class="fas fa-envelope"></i> Email Address</label>
+                            <input type="email" id="email" placeholder="Enter your email" readonly>
+                        </div>
+                        <div class="input-group">
+                            <label for="bio"><i class="fas fa-align-left"></i> Bio</label>
+                            <textarea id="bio" rows="4" placeholder="Tell us about yourself..."></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="input-group">
+                                <label for="location"><i class="fas fa-map-marker-alt"></i> Location</label>
+                                <div class="location-input-wrap">
+                                    <input type="text" id="location" placeholder="Enter your location">
+                                    <button type="button" class="btn-detect-location" id="detectLocationBtn"
+                                        title="Auto-detect location">
+                                        <i class="fas fa-crosshairs"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label for="pronouns"><i class="fas fa-user-tag"></i> Pronouns</label>
+                                <input type="text" id="pronouns" placeholder="e.g. he/him, she/her, they/them">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn-primary" id="saveGeneralBtn" aria-label="Save Changes">
+                                <i class="fas fa-save"></i><span>Save Changes</span>
+                            </button>
+                            <button class="btn-secondary" id="cancelGeneralBtn" aria-label="Cancel">
+                                <i class="fas fa-times"></i><span>Cancel</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="tab-content" id="account-tab">
+                    <div class="tab-header tab-header-lg">
+                        <h2><i class="fas fa-cog fa-spin-slow"></i> Account Settings</h2>
+                        <p>Manage your account security, linked platforms, and preferences</p>
+                    </div>
+
+                    <div class="acct-card acct-overview-card">
+                        <div class="acct-card-border"></div>
+                        <div class="acct-card-glow"></div>
+                        <div class="acct-card-inner">
+                            <div class="acct-card-header">
+                                <div class="acct-card-icon gold-icon">
+                                    <i class="fas fa-user-circle"></i>
+                                    <div class="acct-icon-ring gold-ring"></div>
+                                </div>
+                                <div class="acct-card-title">
+                                    <h3>Account Overview</h3>
+                                    <span class="acct-card-badge gold-badge">Profile</span>
+                                </div>
+                            </div>
+                            <div class="acct-divider gold-divider">
+                                <div class="acct-divider-line"></div>
+                                <div class="acct-divider-dot"></div>
+                            </div>
+                            <div class="acct-overview-grid">
+                                <div class="acct-overview-item">
+                                    <div class="overview-icon-mini"><i class="fas fa-envelope"></i></div>
+                                    <div class="overview-info">
+                                        <span class="overview-label">Email</span>
+                                        <span class="overview-value" id="overviewEmail">Not set</span>
+                                    </div>
+                                </div>
+                                <div class="acct-overview-item">
+                                    <div class="overview-icon-mini"><i class="fas fa-fingerprint"></i></div>
+                                    <div class="overview-info">
+                                        <span class="overview-label">Auth Method</span>
+                                        <span class="overview-value" id="overviewAuthMethod">Email</span>
+                                    </div>
+                                </div>
+                                <div class="acct-overview-item">
+                                    <div class="overview-icon-mini"><i class="fas fa-calendar-alt"></i></div>
+                                    <div class="overview-info">
+                                        <span class="overview-label">Member Since</span>
+                                        <span class="overview-value" id="overviewMemberSince">--</span>
+                                    </div>
+                                </div>
+                                <div class="acct-overview-item">
+                                    <div class="overview-icon-mini"><i class="fas fa-shield-alt"></i></div>
+                                    <div class="overview-info">
+                                        <span class="overview-label">Account Status</span>
+                                        <span class="overview-value overview-status-active"><i class="fas fa-circle"
+                                                style="font-size:6px;color:var(--green);"></i> Active</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="acct-card acct-password-card">
+                        <div class="acct-card-border"></div>
+                        <div class="acct-card-glow"></div>
+                        <div class="acct-card-inner">
+                            <div class="acct-card-header">
+                                <div class="acct-card-icon purple-icon">
+                                    <i class="fas fa-lock"></i>
+                                    <div class="acct-icon-ring"></div>
+                                </div>
+                                <div class="acct-card-title">
+                                    <h3>Change Password</h3>
+                                    <span class="acct-card-badge">Security</span>
+                                </div>
+                            </div>
+                            <div class="acct-divider">
+                                <div class="acct-divider-line"></div>
+                                <div class="acct-divider-dot"></div>
+                            </div>
+                            <div class="acct-form-body">
+                                <div class="input-group">
+                                    <label for="currentPassword"><i class="fas fa-shield-alt"></i> Current
+                                        Password</label>
+                                    <div class="password-input-wrap">
+                                        <input type="password" id="currentPassword"
+                                            placeholder="Enter current password">
+                                        <button class="toggle-password" data-target="currentPassword"
+                                            aria-label="Toggle password visibility"><i class="fas fa-eye"></i></button>
+                                    </div>
+                                </div>
+                                <div class="input-group">
+                                    <label for="newPassword"><i class="fas fa-key"></i> New Password</label>
+                                    <div class="password-input-wrap">
+                                        <input type="password" id="newPassword" placeholder="Enter new password">
+                                        <button class="toggle-password" data-target="newPassword"
+                                            aria-label="Toggle password visibility"><i class="fas fa-eye"></i></button>
+                                    </div>
+                                    <div class="password-strength">
+                                        <div class="strength-bar">
+                                            <div class="strength-bar-fill" id="strengthBarFill"></div>
+                                        </div>
+                                        <span class="strength-text" id="strengthText">Password Strength</span>
+                                    </div>
+                                </div>
+                                <div class="input-group">
+                                    <label for="confirmPassword"><i class="fas fa-check-circle"></i> Confirm
+                                        Password</label>
+                                    <div class="password-input-wrap">
+                                        <input type="password" id="confirmPassword" placeholder="Confirm new password">
+                                        <button class="toggle-password" data-target="confirmPassword"
+                                            aria-label="Toggle password visibility"><i class="fas fa-eye"></i></button>
+                                    </div>
+                                    <div class="password-match-indicator" id="passwordMatchIndicator"></div>
+                                </div>
+                                <div class="form-actions">
+                                    <button class="btn-primary btn-glow" id="updatePasswordBtn"
+                                        aria-label="Update Password">
+                                        <i class="fas fa-shield-alt"></i><span>Update Password</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="acct-card acct-connected-card">
+                        <div class="acct-card-border"></div>
+                        <div class="acct-card-glow cyan-glow"></div>
+                        <div class="acct-card-inner">
+                            <div class="acct-card-header">
+                                <div class="acct-card-icon cyan-icon">
+                                    <i class="fas fa-link"></i>
+                                    <div class="acct-icon-ring cyan-ring"></div>
+                                </div>
+                                <div class="acct-card-title">
+                                    <h3>Connected Accounts</h3>
+                                    <span class="acct-card-badge cyan-badge">Platforms</span>
+                                </div>
+                            </div>
+                            <div class="acct-divider cyan-divider">
+                                <div class="acct-divider-line"></div>
+                                <div class="acct-divider-dot"></div>
+                            </div>
+                            <p class="acct-section-desc">Link your accounts for seamless login and enhanced security
+                                across platforms</p>
+                            <div class="connected-accounts" id="connectedAccountsList">
+                                <div class="connected-account shimmer-load">
+                                    <div class="account-info">
+                                        <div class="account-icon-wrap discord-icon"><i class="fab fa-discord"></i></div>
+                                        <div class="account-details">
+                                            <span class="account-name">Discord</span>
+                                            <span class="account-status not-connected">Loading...</span>
+                                        </div>
+                                    </div>
+                                    <button class="btn-connect" disabled>...</button>
+                                </div>
+                                <div class="connected-account shimmer-load">
+                                    <div class="account-info">
+                                        <div class="account-icon-wrap github-icon"><i class="fab fa-github"></i></div>
+                                        <div class="account-details">
+                                            <span class="account-name">GitHub</span>
+                                            <span class="account-status not-connected">Loading...</span>
+                                        </div>
+                                    </div>
+                                    <button class="btn-connect" disabled>...</button>
+                                </div>
+                                <div class="connected-account shimmer-load">
+                                    <div class="account-info">
+                                        <div class="account-icon-wrap google-icon"><i class="fab fa-google"></i></div>
+                                        <div class="account-details">
+                                            <span class="account-name">Google</span>
+                                            <span class="account-status not-connected">Loading...</span>
+                                        </div>
+                                    </div>
+                                    <button class="btn-connect" disabled>...</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="acct-card acct-session-card">
+                        <div class="acct-card-border"></div>
+                        <div class="acct-card-glow green-glow"></div>
+                        <div class="acct-card-inner">
+                            <div class="acct-card-header">
+                                <div class="acct-card-icon green-icon">
+                                    <i class="fas fa-desktop"></i>
+                                    <div class="acct-icon-ring green-ring"></div>
+                                </div>
+                                <div class="acct-card-title">
+                                    <h3>Active Sessions</h3>
+                                    <span class="acct-card-badge green-badge">Security</span>
+                                </div>
+                            </div>
+                            <div class="acct-divider green-divider">
+                                <div class="acct-divider-line"></div>
+                                <div class="acct-divider-dot"></div>
+                            </div>
+                            <div class="session-list" id="sessionList">
+                                <div class="session-item session-current">
+                                    <div class="session-icon"><i class="fas fa-globe"></i></div>
+                                    <div class="session-details">
+                                        <span class="session-device">Current Browser</span>
+                                        <span class="session-meta"><i class="fas fa-circle"
+                                                style="font-size:5px;color:var(--green);vertical-align:middle;"></i>
+                                            Active Now</span>
+                                    </div>
+                                    <span class="session-current-badge">This Device</span>
+                                </div>
+                            </div>
+                            <div class="session-actions">
+                                <button class="btn-outline-small" id="logoutAllBtn">
+                                    <i class="fas fa-sign-out-alt"></i> Sign Out All Devices
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="acct-card acct-quick-actions-card">
+                        <div class="acct-card-border"></div>
+                        <div class="acct-card-inner">
+                            <div class="acct-card-header">
+                                <div class="acct-card-icon pink-icon">
+                                    <i class="fas fa-bolt"></i>
+                                    <div class="acct-icon-ring pink-ring"></div>
+                                </div>
+                                <div class="acct-card-title">
+                                    <h3>Quick Actions</h3>
+                                    <span class="acct-card-badge pink-badge">Tools</span>
+                                </div>
+                            </div>
+                            <div class="acct-divider pink-divider">
+                                <div class="acct-divider-line"></div>
+                                <div class="acct-divider-dot"></div>
+                            </div>
+                            <div class="quick-actions-grid">
+                                <button class="quick-action-btn" id="exportDataBtn">
+                                    <div class="qa-icon"><i class="fas fa-download"></i></div>
+                                    <span class="qa-label">Export Data</span>
+                                    <span class="qa-desc">Download your data</span>
+                                </button>
+                                <button class="quick-action-btn" id="clearCacheBtn">
+                                    <div class="qa-icon"><i class="fas fa-broom"></i></div>
+                                    <span class="qa-label">Clear Cache</span>
+                                    <span class="qa-desc">Reset local storage</span>
+                                </button>
+                                <button class="quick-action-btn" id="twoFactorBtn">
+                                    <div class="qa-icon"><i class="fas fa-mobile-alt"></i></div>
+                                    <span class="qa-label">2FA Setup</span>
+                                    <span class="qa-desc">Two-factor auth</span>
+                                </button>
+                                <button class="quick-action-btn" id="activityLogBtn">
+                                    <div class="qa-icon"><i class="fas fa-history"></i></div>
+                                    <span class="qa-label">Activity Log</span>
+                                    <span class="qa-desc">Recent actions</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="acct-card acct-danger-card">
+                        <div class="acct-danger-border"></div>
+                        <div class="acct-card-inner">
+                            <div class="acct-card-header">
+                                <div class="acct-card-icon danger-icon">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <div class="acct-icon-ring danger-ring"></div>
+                                </div>
+                                <div class="acct-card-title">
+                                    <h3>Danger Zone</h3>
+                                    <span class="acct-card-badge danger-badge">Irreversible</span>
+                                </div>
+                            </div>
+                            <div class="acct-divider danger-divider">
+                                <div class="acct-divider-line"></div>
+                                <div class="acct-divider-dot"></div>
+                            </div>
+                            <p class="acct-section-desc danger-text">Once you delete your account, there is no going
+                                back. All data will be permanently erased.</p>
+                            <button class="btn-danger btn-glow-danger" id="deleteAccountBtn"
+                                aria-label="Delete Account">
+                                <i class="fas fa-trash-alt"></i><span>Delete Account</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="tab-content" id="privacy-tab">
+                    <div class="tab-header tab-header-lg">
+                        <h2><i class="fas fa-shield-alt"></i> Privacy Settings</h2>
+                        <p>Control who can see your information and activity</p>
+                    </div>
+                    <div class="form-container">
+                        <div class="toggle-group">
+                            <div class="toggle-item">
+                                <div class="toggle-info">
+                                    <span class="toggle-label">Profile Visibility</span>
+                                    <span class="toggle-description">Make your profile visible to other users</span>
+                                </div>
+                                <label class="toggle-switch" data-setting="profileVisibility">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="toggle-item">
+                                <div class="toggle-info">
+                                    <span class="toggle-label">Show Online Status</span>
+                                    <span class="toggle-description">Let others see when you're online</span>
+                                </div>
+                                <label class="toggle-switch" data-setting="showOnlineStatus">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="toggle-item">
+                                <div class="toggle-info">
+                                    <span class="toggle-label">Activity Status</span>
+                                    <span class="toggle-description">Show your current activity to friends</span>
+                                </div>
+                                <label class="toggle-switch" data-setting="activityStatus">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="toggle-item">
+                                <div class="toggle-info">
+                                    <span class="toggle-label">Search Engine Indexing</span>
+                                    <span class="toggle-description">Allow search engines to index your profile</span>
+                                </div>
+                                <label class="toggle-switch" data-setting="searchEngineIndexing">
+                                    <input type="checkbox">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="toggle-item">
+                                <div class="toggle-info">
+                                    <span class="toggle-label">Show Email</span>
+                                    <span class="toggle-description">Display your email on your public profile</span>
+                                </div>
+                                <label class="toggle-switch" data-setting="showEmail">
+                                    <input type="checkbox">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="toggle-item">
+                                <div class="toggle-info">
+                                    <span class="toggle-label">Allow Friend Requests</span>
+                                    <span class="toggle-description">Let other users send you friend requests</span>
+                                </div>
+                                <label class="toggle-switch" data-setting="allowFriendRequests">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="tab-content" id="notifications-tab">
+                    <div class="tab-header tab-header-lg">
+                        <h2><i class="fas fa-bell"></i> Notification Preferences</h2>
+                        <p>Choose how and when you want to be notified</p>
+                    </div>
+                    <div class="form-container">
+                        <div class="toggle-group">
+                            <div class="toggle-item">
+                                <div class="toggle-info">
+                                    <span class="toggle-label">Email Notifications</span>
+                                    <span class="toggle-description">Receive notifications via email</span>
+                                </div>
+                                <label class="toggle-switch" data-setting="emailNotifications">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="toggle-item">
+                                <div class="toggle-info">
+                                    <span class="toggle-label">Push Notifications</span>
+                                    <span class="toggle-description">Receive push notifications in your browser</span>
+                                </div>
+                                <label class="toggle-switch" data-setting="pushNotifications">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="toggle-item">
+                                <div class="toggle-info">
+                                    <span class="toggle-label">Sound Effects</span>
+                                    <span class="toggle-description">Play sounds for notifications and actions</span>
+                                </div>
+                                <label class="toggle-switch" data-setting="soundEffects">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="toggle-item">
+                                <div class="toggle-info">
+                                    <span class="toggle-label">Desktop Notifications</span>
+                                    <span class="toggle-description">Show desktop notifications when available</span>
+                                </div>
+                                <label class="toggle-switch" data-setting="desktopNotifications">
+                                    <input type="checkbox">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="toggle-item">
+                                <div class="toggle-info">
+                                    <span class="toggle-label">Marketing Emails</span>
+                                    <span class="toggle-description">Receive promotional emails and offers</span>
+                                </div>
+                                <label class="toggle-switch" data-setting="marketingEmails">
+                                    <input type="checkbox">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="toggle-item">
+                                <div class="toggle-info">
+                                    <span class="toggle-label">Security Alerts</span>
+                                    <span class="toggle-description">Get notified about security-related events</span>
+                                </div>
+                                <label class="toggle-switch" data-setting="securityAlerts">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="tab-content" id="security-tab">
+                    <div class="tab-header tab-header-lg">
+                        <h2><i class="fas fa-lock"></i> Security Settings</h2>
+                        <p>Protect your account with advanced security options</p>
+                    </div>
+                    <div class="form-container">
+                        <div class="toggle-group">
+                            <div class="toggle-item">
+                                <div class="toggle-info">
+                                    <span class="toggle-label">Two-Factor Authentication</span>
+                                    <span class="toggle-description">Add an extra layer of security to your
+                                        account</span>
+                                </div>
+                                <label class="toggle-switch" data-setting="twoFactorAuth">
+                                    <input type="checkbox">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="toggle-item">
+                                <div class="toggle-info">
+                                    <span class="toggle-label">Login Alerts</span>
+                                    <span class="toggle-description">Get notified when someone logs into your
+                                        account</span>
+                                </div>
+                                <label class="toggle-switch" data-setting="loginAlerts">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="toggle-item">
+                                <div class="toggle-info">
+                                    <span class="toggle-label">Session Management</span>
+                                    <span class="toggle-description">Automatically log out inactive sessions</span>
+                                </div>
+                                <label class="toggle-switch" data-setting="sessionManagement">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-container security-sessions-container">
+                        <div class="section-title">
+                            <h3><i class="fas fa-desktop"></i> Active Sessions</h3>
+                        </div>
+                        <div class="sessions-list" id="securitySessionsList">
+                            <div class="security-session-card loading-pulse">
+                                <div class="security-session-icon"><i class="fas fa-spinner fa-spin"></i></div>
+                                <div class="security-session-info">
+                                    <span class="security-session-device">Loading sessions...</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="security-session-actions">
+                            <button class="btn-security-signout" id="securityLogoutAllBtn">
+                                <i class="fas fa-right-from-bracket"></i> Sign Out All Devices
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+
+            </div>
+        </div>
+
+    </div>
+
+    <footer class="footer-pro">
+        <div class="footer-pro-bg">
+            <div class="footer-pro-gradient"></div>
+            <div class="footer-pro-grid"></div>
+            <div class="footer-pro-glow footer-pro-glow-1"></div>
+            <div class="footer-pro-glow footer-pro-glow-2"></div>
+            <div class="footer-pro-glow footer-pro-glow-3"></div>
+            <div class="footer-pro-line footer-pro-line-1"></div>
+            <div class="footer-pro-line footer-pro-line-2"></div>
+        </div>
+
+        <div class="footer-pro-main">
+            <div class="footer-pro-container">
+                <div class="footer-pro-glass">
+                    <div class="footer-pro-grid-inner">
+                        <div class="footer-pro-brand">
+                            <a href="https://script-kittens.com" class="footer-pro-brand-link">
+                                <div class="footer-pro-brand-text">
+                                    <span class="footer-pro-brand-name">Script<span
+                                            class="footer-pro-brand-accent">Kittens</span></span>
+                                    <span class="footer-pro-tagline">Elite Gaming Tools Studio</span>
+                                </div>
+                            </a>
+                            <p class="footer-pro-desc">Crafting premium gaming tools and experiences for the next
+                                generation. Innovation meets excellence.</p>
+                            <div class="footer-pro-status">
+                                <span class="footer-pro-status-dot"></span>
+                                <span>All Systems Operational</span>
+                            </div>
+                        </div>
+                        <div class="footer-pro-col">
+                            <span class="footer-pro-label">Products</span>
+                            <a href="https://script-kittens.com/#products">Premium Cheats</a>
+                            <a href="https://script-kittens.com/#features">Advanced Features</a>
+                            <a href="https://script-kittens.com/#api">API Access</a>
+                            <a href="https://cheats.script-kittens.com">Cheats Vault</a>
+                        </div>
+                        <div class="footer-pro-col">
+                            <span class="footer-pro-label">Company</span>
+                            <a href="https://script-kittens.com/#about">About Us</a>
+                            <a href="https://script-kittens.com/#team">Our Team</a>
+                            <a href="https://script-kittens.com/#careers">Careers</a>
+                            <a href="https://script-kittens.com/#blog">Blog</a>
+                        </div>
+                        <div class="footer-pro-col footer-pro-contact">
+                            <span class="footer-pro-label">Get in touch</span>
+                            <a href="mailto:contact@script-kittens.com"
+                                class="footer-pro-email">contact@script-kittens.com</a>
+                            <div class="footer-pro-socials">
+                                <a href="https://discord.gg/AqkdsPMU7M" target="_blank" class="footer-pro-social"
+                                    aria-label="Discord"><i class="fab fa-discord"></i></a>
+                                <a href="#" class="footer-pro-social" aria-label="Telegram"><i
+                                        class="fab fa-telegram-plane"></i></a>
+                                <a href="#" class="footer-pro-social" aria-label="YouTube"><i
+                                        class="fab fa-youtube"></i></a>
+                                <a href="#" class="footer-pro-social" aria-label="Twitter"><i
+                                        class="fab fa-twitter"></i></a>
+                                <a href="#" class="footer-pro-social" aria-label="Instagram"><i
+                                        class="fab fa-instagram"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-pro-marquee">
+            <div class="footer-pro-marquee-inner">
+                <span class="footer-pro-marquee-word">SCRIPT</span>
+                <span class="footer-pro-marquee-word footer-pro-marquee-accent">KITTENS</span>
+                <span class="footer-pro-marquee-word">SCRIPT</span>
+                <span class="footer-pro-marquee-word footer-pro-marquee-accent">KITTENS</span>
+                <span class="footer-pro-marquee-word">SCRIPT</span>
+                <span class="footer-pro-marquee-word footer-pro-marquee-accent">KITTENS</span>
+                <span class="footer-pro-marquee-word">SCRIPT</span>
+                <span class="footer-pro-marquee-word footer-pro-marquee-accent">KITTENS</span>
+                <span class="footer-pro-marquee-word">SCRIPT</span>
+                <span class="footer-pro-marquee-word footer-pro-marquee-accent">KITTENS</span>
+                <span class="footer-pro-marquee-word">SCRIPT</span>
+                <span class="footer-pro-marquee-word footer-pro-marquee-accent">KITTENS</span>
+            </div>
+            <div class="footer-pro-marquee-glow"></div>
+        </div>
+
+        <div class="footer-pro-bottom">
+            <div class="footer-pro-bottom-glass">
+                <div class="footer-pro-bottom-inner">
+                    <span class="footer-pro-copy">&copy; 2026 Script Kittens. All rights reserved.</span>
+                    <div class="footer-pro-legal">
+                        <a href="#privacy">Privacy Policy</a>
+                        <span class="footer-pro-legal-dot"></span>
+                        <a href="#terms">Terms of Service</a>
+                        <span class="footer-pro-legal-dot"></span>
+                        <a href="#cookies">Cookie Policy</a>
+                    </div>
+                    <div class="footer-pro-tags">
+                        <span class="footer-pro-tag">#GAMING</span>
+                        <span class="footer-pro-tag">#FREEFIRE</span>
+                        <span class="footer-pro-tag">#TOOLS</span>
+                        <span class="footer-pro-tag">#COMMUNITY</span>
+                        <span class="footer-pro-tag">#SCRIPTKITTENS</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <button class="back-to-top" id="backToTopBtn" aria-label="Back to Top">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="https://script-kittens.com/config.js"></script>
+    <script src="https://script-kittens.com/profile.js?v=44.0"></script>
+    <!-- Analytics Tracker -->
+    <script src="https://script-kittens.com/analytics.js" defer></script>
+</body>
+
+</html>

@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCRIPT KITTENS — Free Cheats Vault</title>
+<meta name="description" content="Browse, download and upload free gaming scripts, cheats, mods and projects. Community verified.">
+<link rel="icon" type="image/gif" href="https://script-kittens.com/favicon.gif?v=3">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#060608;--bg2:#0c0c10;--bg3:#111116;--bg4:#17171d;--bg5:#1d1d25;
+--sf:#0e0e13;--sf2:#131319;
+--bd:#1b1b24;--bd2:#25252f;--bd3:#30303c;
+--r:#dc2626;--rd:rgba(220,38,38,.07);--rg:rgba(220,38,38,.18);
+--g:#22c55e;--gd:rgba(34,197,94,.07);
+--go:#f59e0b;--god:rgba(245,158,11,.07);
+--b:#3b82f6;--bd2c:rgba(59,130,246,.07);
+--p:#8b5cf6;--pd:rgba(139,92,246,.07);
+--t1:#ededf0;--t2:#8e8ea3;--t3:#5c5c70;--t4:#3b3b4b;
+--fn:'Inter',sans-serif;--mn:'JetBrains Mono',monospace;--dn:'Syne',sans-serif;
+--rad:8px;--rad2:12px;--rad3:16px;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--t1);font-family:var(--fn);line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
+button{cursor:pointer;border:none;background:none;font-family:inherit;color:inherit}
+input,select,textarea{font-family:inherit}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:#252530;border-radius:4px}::-webkit-scrollbar-thumb:hover{background:var(--r)}
+::selection{background:var(--r);color:#fff}
+
+/* ═══════════ NAVBAR — PILL STYLE ═══════════ */
+.sk-nav{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:100;width:auto;max-width:920px;transition:all .4s cubic-bezier(.4,0,.2,1)}
+.sk-nav-pill{display:flex;align-items:center;gap:6px;background:rgba(12,12,16,.82);backdrop-filter:blur(24px) saturate(1.6);border:1px solid rgba(255,255,255,.06);border-radius:99px;padding:6px 8px 6px 20px;box-shadow:0 4px 30px rgba(0,0,0,.4)}
+.sk-nav-logo{display:flex;align-items:center;gap:8px;margin-right:8px;text-decoration:none}
+.sk-nav-logo img{width:26px;height:26px;border-radius:50%}
+.sk-nav-logo span{font-family:var(--dn);font-weight:700;font-size:14px;color:var(--r);letter-spacing:.02em}
+.sk-nav-links{display:flex;align-items:center;gap:2px}
+.sk-nav-link{padding:8px 14px;font-size:12.5px;font-weight:500;color:var(--t2);border-radius:99px;transition:all .25s;white-space:nowrap}
+.sk-nav-link:hover{color:var(--t1);background:rgba(255,255,255,.05)}
+.sk-nav-link.active{color:#fff;background:rgba(220,38,38,.12)}
+.sk-nav-sep{width:1px;height:20px;background:rgba(255,255,255,.06);margin:0 4px}
+.sk-nav-cta{display:flex;align-items:center;gap:6px;background:var(--r);color:#fff;padding:8px 18px;border-radius:99px;font-size:12px;font-weight:700;letter-spacing:.02em;transition:all .3s;white-space:nowrap}
+.sk-nav-cta:hover{background:#b91c1c;box-shadow:0 0 20px rgba(220,38,38,.3)}
+.sk-nav-hamburger{display:none;flex-direction:column;gap:4px;padding:8px;cursor:pointer}
+.sk-nav-hamburger span{display:block;width:18px;height:2px;background:var(--t2);border-radius:2px;transition:all .3s}
+.sk-nav-mobile{display:none;position:absolute;top:calc(100% + 8px);right:0;left:0;background:rgba(12,12,16,.95);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.06);border-radius:var(--rad2);padding:12px;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.sk-nav-mobile.open{display:flex;flex-direction:column;gap:2px}
+.sk-nav-mobile a{padding:10px 16px;font-size:13px;color:var(--t2);border-radius:var(--rad);transition:all .2s}
+.sk-nav-mobile a:hover,.sk-nav-mobile a.active{color:#fff;background:rgba(255,255,255,.05)}
+.sk-nav-mobile .sk-nav-mob-cta{margin-top:6px;background:var(--r);color:#fff;text-align:center;font-weight:700;border-radius:99px;padding:10px}
+
+@media(max-width:768px){
+.sk-nav{top:10px;left:10px;right:10px;transform:none;max-width:none}
+.sk-nav-links,.sk-nav-sep{display:none}
+.sk-nav-hamburger{display:flex}
+.sk-nav-pill{justify-content:space-between;padding:8px 12px 8px 16px}
+}
+
+/* ═══════════ HERO ═══════════ */
+.vault-hero{position:relative;min-height:520px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;overflow:hidden;padding:110px 24px 50px}
+.vault-hero-bg{position:absolute;inset:0;z-index:0}
+.vault-hero-bg img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) brightness(.2) contrast(1.1);opacity:.6}
+.vault-hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,var(--bg) 0%,rgba(6,6,8,.3) 35%,rgba(6,6,8,.3) 60%,var(--bg) 100%)}
+.vh-grid{position:absolute;inset:0;z-index:1;opacity:.03;background-image:linear-gradient(rgba(220,38,38,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(220,38,38,.5) 1px,transparent 1px);background-size:48px 48px}
+.vh-orb{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none;z-index:1}
+.vh-orb1{width:300px;height:300px;background:rgba(220,38,38,.06);top:10%;left:-5%;animation:orb 16s ease-in-out infinite}
+.vh-orb2{width:220px;height:220px;background:rgba(139,92,246,.04);bottom:10%;right:-2%;animation:orb 20s ease-in-out infinite reverse}
+@keyframes orb{0%,100%{transform:translate(0,0)}50%{transform:translate(20px,-15px)}}
+.vh-embers{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:2}
+.vh-e{position:absolute;background:var(--r);border-radius:50%;filter:blur(1px);animation:emb var(--d) linear infinite;opacity:0}
+@keyframes emb{0%{transform:translateY(100vh) translateX(0);opacity:0}12%{opacity:.5}88%{opacity:.3}100%{transform:translateY(-10vh) translateX(var(--x));opacity:0}}
+
+.vh-content{position:relative;z-index:3;max-width:600px}
+.vh-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(220,38,38,.06);border:1px solid rgba(220,38,38,.12);border-radius:99px;padding:5px 16px;font-size:10.5px;font-weight:600;color:#ef4444;letter-spacing:.12em;text-transform:uppercase;margin-bottom:24px;font-family:var(--mn)}
+.vh-dot{width:6px;height:6px;border-radius:50%;background:#ef4444;animation:dot 2s ease-in-out infinite}
+@keyframes dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.6)}}
+.vh-title{font-family:var(--dn);font-size:clamp(36px,7vw,64px);font-weight:800;letter-spacing:-.01em;line-height:1.08;margin-bottom:14px;color:#fff}
+.vh-title em{display:block;color:var(--r);font-style:normal}
+.vh-sub{font-family:var(--mn);font-size:12px;color:var(--t3);letter-spacing:.2em;text-transform:uppercase;margin-bottom:32px}
+.vh-sub .blink{animation:blink 1s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.vh-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.vh-btn{padding:12px 32px;font-size:13px;font-weight:600;letter-spacing:.03em;border-radius:99px;transition:all .3s}
+.vh-btn-p{background:var(--r);color:#fff;box-shadow:0 0 24px var(--rg)}.vh-btn-p:hover{background:#b91c1c;box-shadow:0 0 40px rgba(220,38,38,.3);transform:translateY(-2px)}
+.vh-btn-o{border:1px solid rgba(220,38,38,.3);color:var(--r);background:rgba(220,38,38,.04)}.vh-btn-o:hover{background:var(--r);color:#fff;border-color:var(--r)}
+
+.vh-stats{position:relative;z-index:3;display:flex;justify-content:center;margin-top:40px;gap:0}
+.vh-stat{display:flex;flex-direction:column;align-items:center;padding:0 26px;border-right:1px solid rgba(255,255,255,.06)}
+.vh-stat:last-child{border:none}
+.vh-stat-n{font-size:22px;font-weight:700;color:#fff;line-height:1.2;font-variant-numeric:tabular-nums}
+.vh-stat-n .ct{color:var(--r)}
+.vh-stat-l{font-size:9.5px;color:var(--t3);text-transform:uppercase;letter-spacing:.14em;font-weight:500;margin-top:3px}
+
+/* ═══════════ VAULT SECTION ═══════════ */
+.vault-wrap{max-width:1280px;margin:0 auto;padding:0 28px}
+
+/* Mode Toggle — centered */
+.v-modebar{display:flex;flex-direction:column;align-items:center;gap:12px;padding:32px 0 0}
+.v-modetog{display:flex;background:var(--bg2);border:1px solid var(--bd);border-radius:99px;padding:3px}
+.v-modebtn{padding:10px 28px;font-size:13px;font-weight:600;color:var(--t3);transition:all .3s;border-radius:99px}
+.v-modebtn.active{color:#fff;background:var(--r);box-shadow:0 2px 14px rgba(220,38,38,.2)}
+.v-modebtn:not(.active):hover{color:var(--t1);background:rgba(255,255,255,.03)}
+.v-modeinfo{font-size:12px;color:var(--t3);font-family:var(--mn)}.v-modeinfo strong{color:var(--t1);font-size:14px}
+
+/* Tabs — centered */
+.v-tabs{display:flex;gap:2px;padding:22px 0 0;border-bottom:1px solid var(--bd);justify-content:center}
+.v-tab{padding:11px 20px;font-size:12px;font-weight:600;color:var(--t3);border-bottom:2px solid transparent;transition:all .25s;bottom:-1px;position:relative;letter-spacing:.01em}
+.v-tab:hover{color:var(--t2)}.v-tab.active{color:var(--t1);border-color:var(--r)}
+.v-tab-ct{font-size:10px;background:var(--bg3);color:var(--t4);padding:2px 7px;border-radius:99px;margin-left:6px;font-weight:700}
+.v-tab.active .v-tab-ct{background:var(--rd);color:var(--r)}
+
+/* Toolbar */
+.v-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:16px 0}
+.v-search{flex:1;min-width:200px;position:relative}
+.v-search i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--t4);font-size:13px;z-index:1;transition:color .2s}
+.v-search input{width:100%;background:var(--sf);border:1px solid var(--bd);border-radius:var(--rad2);padding:10px 14px 10px 38px;color:var(--t1);font-size:13px;outline:none;transition:all .3s}
+.v-search input:focus{border-color:var(--r);box-shadow:0 0 0 3px var(--rd)}.v-search input::placeholder{color:var(--t4)}
+.v-sel{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rad2);padding:10px 34px 10px 14px;color:var(--t1);font-size:12px;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%235c5c70' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;cursor:pointer;transition:all .3s}
+.v-sel:focus{border-color:var(--r);box-shadow:0 0 0 3px var(--rd)}
+.v-tbtn{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:var(--rad2);border:1px solid var(--bd);background:var(--sf);color:var(--t3);font-size:13px;transition:all .25s}
+.v-tbtn:hover,.v-tbtn.on{color:var(--r);border-color:rgba(220,38,38,.25);background:var(--rd)}
+.v-sortbtn{display:flex;align-items:center;gap:6px;padding:10px 16px;border-radius:var(--rad2);border:1px solid var(--bd);background:var(--sf);color:var(--t2);font-size:12px;font-weight:500;transition:all .25s;white-space:nowrap}
+.v-sortbtn:hover{border-color:var(--bd3);color:var(--t1)}
+
+/* ═══════════ GRID ═══════════ */
+.v-content{padding:4px 0 80px}
+.v-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px}
+.v-grid.list{grid-template-columns:1fr}
+
+/* ═══════════ CARD ═══════════ */
+.vc{background:rgba(14,14,19,.7);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.04);border-radius:var(--rad3);overflow:hidden;transition:all .35s cubic-bezier(.4,0,.2,1);position:relative}
+.vc:hover{border-color:rgba(220,38,38,.1);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.35),0 0 0 1px rgba(220,38,38,.06)}
+.vc-glow{position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(220,38,38,.04) 0%,transparent 50%);pointer-events:none;z-index:0;opacity:0;transition:opacity .4s}.vc:hover .vc-glow{opacity:1}
+.vc-img{width:100%;height:175px;object-fit:cover;background:var(--bg3);border-bottom:1px solid var(--bd);position:relative;z-index:1}
+.vc-ph{width:100%;height:175px;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,var(--bg2),var(--bg3));border-bottom:1px solid var(--bd);color:var(--t4);font-size:34px;position:relative;z-index:1}.vc-ph i{opacity:.2}
+.vc-body{padding:16px 18px 12px;position:relative;z-index:2}
+.vc-top{display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;gap:8px}
+.vc-game{font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:4px}.vc-game i{color:var(--r);opacity:.45;font-size:9px}
+.vc-tags{display:flex;gap:4px;flex-wrap:wrap}
+.vt{font-size:8.5px;font-weight:700;padding:3px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:.04em}
+.vt-hot{background:rgba(220,38,38,.1);color:#ef4444;border:1px solid rgba(220,38,38,.1)}
+.vt-new{background:rgba(34,197,94,.07);color:#22c55e;border:1px solid rgba(34,197,94,.08)}
+.vt-elite{background:rgba(245,158,11,.07);color:#f59e0b;border:1px solid rgba(245,158,11,.08)}
+.vt-verified{background:rgba(59,130,246,.07);color:#3b82f6;border:1px solid rgba(59,130,246,.08)}
+.vt-paid{background:rgba(139,92,246,.07);color:#8b5cf6;border:1px solid rgba(139,92,246,.08)}
+.vc-title{font-size:15px;font-weight:700;margin-bottom:5px;line-height:1.3;transition:color .25s}.vc:hover .vc-title{color:var(--r)}
+.vc-desc{font-size:12px;color:var(--t2);line-height:1.6;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.vc-code{margin:0 18px 12px;padding:10px 12px;border-radius:6px;background:rgba(0,0,0,.5);border:1px solid var(--bd);font-family:var(--mn);font-size:10px;color:#6e6e90;overflow-x:auto;white-space:pre;line-height:1.7;position:relative;z-index:2;max-height:80px}
+.vc-code .cpy{position:absolute;top:7px;right:7px;background:var(--bg3);border:1px solid var(--bd);border-radius:4px;padding:2px 7px;font-size:9px;color:var(--t3);opacity:0;transition:all .2s;font-family:var(--fn);font-weight:600}.vc-code:hover .cpy{opacity:1}.vc-code .cpy:hover{color:var(--r);border-color:var(--r)}
+.vc-foot{display:flex;align-items:center;justify-content:space-between;padding:0 18px 12px;position:relative;z-index:2}
+.vc-author{display:flex;align-items:center;gap:7px}
+.vc-av{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--bg4),var(--bg3));display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--t3);border:1px solid var(--bd)}
+.vc-aname{font-size:11px;font-weight:600;color:var(--t2)}
+.vc-adate{font-size:10px;color:var(--t4)}
+.vc-stats{display:flex;gap:12px}
+.vc-stat{display:flex;align-items:center;gap:3px;font-size:11px;color:var(--t3);font-weight:500}.vc-stat i{font-size:10px}
+.vc-actions{padding:0 18px 16px;display:flex;gap:6px;position:relative;z-index:2}
+.vc-dl{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;border-radius:var(--rad);background:var(--r);color:#fff;font-size:12px;font-weight:600;transition:all .3s}
+.vc-dl:hover{background:#b91c1c;box-shadow:0 4px 16px rgba(220,38,38,.2);transform:translateY(-1px)}
+.vc-dl.paid{background:#8b5cf6}.vc-dl.paid:hover{background:#7c3aed;box-shadow:0 4px 16px rgba(139,92,246,.2)}
+.vc-sec{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:var(--rad);border:1px solid var(--bd);color:var(--t3);font-size:11px;transition:all .25s;background:rgba(255,255,255,.01)}
+.vc-sec:hover{border-color:var(--r);color:var(--r);background:var(--rd)}
+
+/* Empty */
+.v-empty{grid-column:1/-1;text-align:center;padding:100px 20px}.v-empty i{font-size:40px;color:var(--t4);margin-bottom:14px;opacity:.35}.v-empty h3{font-size:16px;font-weight:600;margin-bottom:6px}.v-empty p{color:var(--t3);font-size:13px}
+
+/* ═══════════ UPLOAD MODAL ═══════════ */
+.v-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;visibility:hidden;transition:all .3s}.v-overlay.open{opacity:1;visibility:visible}
+.v-modal{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--rad3);width:100%;max-width:700px;max-height:90vh;overflow-y:auto;box-shadow:0 16px 56px rgba(0,0,0,.5);transform:translateY(16px) scale(.97);transition:all .35s cubic-bezier(.4,0,.2,1)}.v-overlay.open .v-modal{transform:translateY(0) scale(1)}
+.vm-hd{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--bd)}.vm-hd h2{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}.vm-hd h2 i{color:var(--r)}
+.vm-x{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--t3);transition:all .2s;font-size:13px}.vm-x:hover{background:var(--bg4);color:var(--t1)}
+.vm-bd{padding:24px}
+.vm-steps{display:flex;gap:2px;margin-bottom:24px;background:var(--bg);border-radius:var(--rad2);padding:3px;border:1px solid var(--bd)}
+.vm-st{flex:1;padding:10px;text-align:center;font-size:11px;font-weight:600;color:var(--t4);border-radius:var(--rad);transition:all .25s;cursor:pointer}
+.vm-st.active{background:var(--r);color:#fff}.vm-st.done{color:var(--g)}.vm-st .sn{display:block;font-size:9px;color:var(--t4);margin-bottom:2px;letter-spacing:.06em}.vm-st.active .sn{color:rgba(255,255,255,.7)}.vm-st.done .sn{color:var(--g)}
+.vm-tc{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px}
+.vm-tcard{background:var(--sf);border:2px solid var(--bd);border-radius:var(--rad2);padding:20px 14px;text-align:center;cursor:pointer;transition:all .3s}
+.vm-tcard:hover{border-color:var(--bd3);transform:translateY(-2px)}.vm-tcard.sel{border-color:var(--r);background:var(--rd);box-shadow:0 0 16px rgba(220,38,38,.06)}
+.vm-tcard i{font-size:24px;color:var(--t3);margin-bottom:8px;display:block;transition:color .2s}.vm-tcard.sel i{color:var(--r)}
+.vm-tcard h4{font-size:13px;font-weight:700;margin-bottom:3px}.vm-tcard p{font-size:10px;color:var(--t3);line-height:1.4}
+.fg{margin-bottom:16px}.fl{display:block;font-size:10px;font-weight:600;color:var(--t2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}
+.fi{width:100%;background:var(--sf);border:1px solid var(--bd);border-radius:var(--rad);padding:10px 14px;color:var(--t1);font-size:13px;outline:none;transition:all .3s}.fi:focus{border-color:var(--r);box-shadow:0 0 0 3px var(--rd)}.fi::placeholder{color:var(--t4)}
+textarea.fi{resize:vertical;min-height:80px;line-height:1.6}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.vm-ce{background:rgba(0,0,0,.45);border:1px solid var(--bd);border-radius:var(--rad);overflow:hidden}
+.vm-cebar{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--bd);background:var(--sf)}.vm-cebar span{font-family:var(--mn);font-size:10px;color:var(--t3)}
+.vm-ceta{width:100%;min-height:130px;background:transparent;border:none;padding:12px;color:#b0b0c8;font-family:var(--mn);font-size:12px;line-height:1.7;resize:vertical;outline:none}.vm-ceta::placeholder{color:var(--t4)}
+.vm-imgup{border:2px dashed var(--bd2);border-radius:var(--rad2);padding:28px;text-align:center;cursor:pointer;transition:all .3s;position:relative;overflow:hidden;background:var(--sf)}
+.vm-imgup:hover{border-color:var(--r)}.vm-imgup i{font-size:24px;color:var(--t3);margin-bottom:6px}.vm-imgup p{font-size:12px;color:var(--t3)}.vm-imgup span{color:var(--r);font-weight:600}
+.vm-imgup small{display:block;font-size:10px;color:var(--t4);margin-top:3px}.vm-imgup input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.vm-imgup img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.vm-imgup.has{border-style:solid;border-color:var(--g)}
+.vm-fdrop{border:2px dashed var(--bd2);border-radius:var(--rad2);padding:24px;text-align:center;cursor:pointer;transition:all .3s;position:relative;overflow:hidden;background:var(--sf)}
+.vm-fdrop:hover{border-color:var(--r)}.vm-fdrop .di{font-size:28px;color:var(--t3);margin-bottom:8px}.vm-fdrop h4{font-size:13px;font-weight:600;margin-bottom:3px}.vm-fdrop p{font-size:11px;color:var(--t3)}
+.vm-fdrop input{position:absolute;inset:0;opacity:0;cursor:pointer}.vm-fdrop.has{border-style:solid;border-color:var(--g)}
+.vm-finfo{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--sf2);border:1px solid var(--g);border-radius:var(--rad);margin-top:10px}
+.vm-finfo i{font-size:18px;color:var(--g)}.vm-finfo .fn{font-size:12px;font-weight:600}.vm-finfo .fs{font-size:10px;color:var(--t3)}.vm-finfo .fx{margin-left:auto;color:var(--t3);cursor:pointer;transition:color .2s}.vm-finfo .fx:hover{color:var(--r)}
+.vm-tw{display:flex;flex-wrap:wrap;gap:5px;padding:8px 12px;background:var(--sf);border:1px solid var(--bd);border-radius:var(--rad);min-height:40px;align-items:center;transition:all .3s}.vm-tw:focus-within{border-color:var(--r);box-shadow:0 0 0 3px var(--rd)}
+.vm-tp{display:flex;align-items:center;gap:4px;background:var(--bg4);border:1px solid var(--bd2);border-radius:4px;padding:3px 8px;font-size:10px;font-weight:500;color:var(--t1)}.vm-tp i{font-size:8px;color:var(--t3);cursor:pointer;transition:color .2s}.vm-tp i:hover{color:var(--r)}
+.vm-ti{border:none;background:none;color:var(--t1);font-size:12px;outline:none;flex:1;min-width:70px}.vm-ti::placeholder{color:var(--t4)}
+.vm-th{font-size:10px;color:var(--t4);margin-top:4px}
+.vm-sub{width:100%;padding:12px;background:var(--r);color:#fff;border-radius:var(--rad);font-size:14px;font-weight:700;transition:all .3s;display:flex;align-items:center;justify-content:center;gap:7px;margin-top:8px}
+.vm-sub:hover{background:#b91c1c}.vm-sub:disabled{opacity:.4;cursor:not-allowed}.vm-sub.ok{background:var(--g)}
+.sp{display:none}.sp.act{display:block}
+.snav{display:flex;gap:8px;margin-top:20px}
+.snext,.sback{flex:1;padding:11px;border-radius:var(--rad);font-size:13px;font-weight:600;transition:all .3s;text-align:center}
+.snext{background:var(--r);color:#fff}.snext:hover{background:#b91c1c}
+.sback{background:var(--sf);border:1px solid var(--bd);color:var(--t2)}.sback:hover{border-color:var(--bd3);color:var(--t1)}
+
+/* ═══════════ FOOTER — SIMPLE ═══════════ */
+.sk-ft{border-top:1px solid var(--bd);margin-top:0;position:relative}
+.sk-ft::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:1px;background:linear-gradient(90deg,transparent,var(--r),transparent)}
+.sk-ft-inner{max-width:1280px;margin:0 auto;padding:40px 28px 20px;display:flex;flex-direction:column;align-items:center;gap:24px}
+.sk-ft-links{display:flex;gap:24px;flex-wrap:wrap;justify-content:center}
+.sk-ft-links a{font-size:12px;color:var(--t3);transition:color .2s}.sk-ft-links a:hover{color:var(--t1)}
+.sk-ft-socials{display:flex;gap:20px}
+.sk-ft-socials a{color:var(--t3);font-size:16px;transition:all .25s}.sk-ft-socials a:hover{color:var(--r);transform:translateY(-2px)}
+.sk-ft-copy{font-size:11px;color:var(--t4);text-align:center}
+
+/* Toast */
+.v-toast-box{position:fixed;bottom:20px;right:20px;z-index:300;display:flex;flex-direction:column;gap:6px}
+.v-toast{background:var(--sf2);border:1px solid var(--bd);border-radius:var(--rad);padding:10px 16px;font-size:12px;font-weight:500;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,.5);animation:ti .3s ease}
+.v-toast.ok{border-color:rgba(34,197,94,.25)}.v-toast.ok i{color:var(--g)}
+.v-toast.err{border-color:rgba(220,38,38,.25)}.v-toast.err i{color:var(--r)}
+@keyframes ti{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes to{from{opacity:1}to{opacity:0;transform:translateY(-10px)}}
+
+/* ═══════════ RESPONSIVE ═══════════ */
+@media(max-width:768px){
+.vault-hero{min-height:420px;padding:90px 16px 40px}.vh-title{font-size:32px}
+.vh-stats{flex-wrap:wrap;gap:12px}.vh-stat{padding:0 14px;border:none}
+.vault-wrap{padding:0 16px}
+.v-toolbar{flex-wrap:wrap}.v-tabs{overflow-x:auto;flex-wrap:nowrap;justify-content:flex-start;-webkit-overflow-scrolling:touch}
+.v-grid{grid-template-columns:1fr;gap:12px}
+.vm-tc{grid-template-columns:1fr}.frow{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+.vh-title{font-size:26px}.vh-sub{font-size:10px;letter-spacing:.1em}
+.vh-stat-n{font-size:18px}.v-modebtn{padding:8px 18px;font-size:12px}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ NAVBAR — PILL ═══════════ -->
+<div class="sk-nav" id="skNav">
+<div class="sk-nav-pill">
+    <a href="https://script-kittens.com" class="sk-nav-logo">
+        <img src="https://script-kittens.com/team/icon2.png" alt="SK" onerror="this.style.display='none'">
+        <span>Script Kittens</span>
+    </a>
+    <div class="sk-nav-links">
+        <a href="https://script-kittens.com/#products" class="sk-nav-link">Products</a>
+        <a href="https://script-kittens.com/#pricing" class="sk-nav-link">Pricing</a>
+        <a href="https://cheats.script-kittens.com" class="sk-nav-link active">Free Cheats</a>
+        <a href="https://script-kittens.com/#courses" class="sk-nav-link">Courses</a>
+        <a href="https://script-kittens.com/#about" class="sk-nav-link">About</a>
+    </div>
+    <div class="sk-nav-sep"></div>
+    <a href="https://discord.gg/AqkdsPMU7M" target="_blank" class="sk-nav-cta"><i class="fab fa-discord"></i> Discord</a>
+    <button class="sk-nav-hamburger" id="navHam"><span></span><span></span><span></span></button>
+</div>
+<div class="sk-nav-mobile" id="navMob">
+    <a href="https://script-kittens.com/#products">Products</a>
+    <a href="https://script-kittens.com/#pricing">Pricing</a>
+    <a href="https://cheats.script-kittens.com" class="active">Free Cheats</a>
+    <a href="https://script-kittens.com/#courses">Courses</a>
+    <a href="https://script-kittens.com/#about">About</a>
+    <a href="https://discord.gg/AqkdsPMU7M" target="_blank" class="sk-nav-mob-cta"><i class="fab fa-discord"></i> Join Discord</a>
+</div>
+</div>
+
+<!-- ═══════════ HERO ═══════════ -->
+<section class="vault-hero">
+<div class="vault-hero-bg"><img src="https://i.pinimg.com/1200x/47/7a/19/477a19920890c3d3e768ddbcca7ac0b8.jpg" alt=""></div>
+<div class="vh-grid"></div>
+<div class="vh-orb vh-orb1"></div>
+<div class="vh-orb vh-orb2"></div>
+<div class="vh-embers">
+    <div class="vh-e" style="left:6%;width:3px;height:3px;--d:9s;--x:30px;top:100vh"></div>
+    <div class="vh-e" style="left:20%;width:2px;height:2px;--d:13s;--x:-20px;top:100vh"></div>
+    <div class="vh-e" style="left:40%;width:4px;height:4px;--d:8s;--x:45px;top:100vh"></div>
+    <div class="vh-e" style="left:58%;width:2px;height:2px;--d:11s;--x:-35px;top:100vh"></div>
+    <div class="vh-e" style="left:75%;width:3px;height:3px;--d:10s;--x:40px;top:100vh"></div>
+    <div class="vh-e" style="left:90%;width:5px;height:5px;--d:7s;--x:-50px;top:100vh"></div>
+</div>
+<div class="vh-content">
+    <div class="vh-badge"><span class="vh-dot"></span> Vault Protocol Active</div>
+    <h1 class="vh-title">Free Cheats<em>Vault</em></h1>
+    <p class="vh-sub">// decrypting protocols<span class="blink">_</span></p>
+    <div class="vh-btns">
+        <a href="#vault" class="vh-btn vh-btn-p">Browse Scripts</a>
+        <button class="vh-btn vh-btn-o" id="heroUploadBtn"><i class="fas fa-plus" style="margin-right:5px"></i>Upload</button>
+    </div>
+</div>
+<div class="vh-stats">
+    <div class="vh-stat"><div class="vh-stat-n"><span class="ct" data-t="12402">0</span>+</div><div class="vh-stat-l">Active Users</div></div>
+    <div class="vh-stat"><div class="vh-stat-n"><span class="ct" data-t="8910">0</span>+</div><div class="vh-stat-l">Total Scripts</div></div>
+    <div class="vh-stat"><div class="vh-stat-n"><span class="ct" data-t="452">0</span></div><div class="vh-stat-l">Daily Uploads</div></div>
+    <div class="vh-stat"><div class="vh-stat-n">99.9<span style="color:var(--g)">%</span></div><div class="vh-stat-l">Uptime</div></div>
+</div>
+</section>
+
+<!-- ═══════════ VAULT ═══════════ -->
+<div class="vault-wrap" id="vault">
+<div class="v-modebar">
+    <div class="v-modetog" id="modeToggle">
+        <button class="v-modebtn active" data-mode="free"><i class="fas fa-unlock" style="margin-right:6px"></i>Free Cheats</button>
+        <button class="v-modebtn" data-mode="paid"><i class="fas fa-crown" style="margin-right:6px"></i>Premium</button>
+    </div>
+    <div class="v-modeinfo">Showing <strong id="resultCount">0</strong> results</div>
+</div>
+<div class="v-tabs" id="tabsBar">
+    <button class="v-tab active" data-f="all">All <span class="v-tab-ct" id="cAll">0</span></button>
+    <button class="v-tab" data-f="project">Projects <span class="v-tab-ct" id="cProj">0</span></button>
+    <button class="v-tab" data-f="cheat">Cheats <span class="v-tab-ct" id="cCheat">0</span></button>
+    <button class="v-tab" data-f="code">Code <span class="v-tab-ct" id="cCode">0</span></button>
+    <button class="v-tab" data-f="tool">Tools <span class="v-tab-ct" id="cTool">0</span></button>
+</div>
+<div class="v-toolbar">
+    <div class="v-search"><i class="fas fa-search"></i><input type="text" id="searchInput" placeholder="Search scripts, projects, tools..."></div>
+    <select class="v-sel" id="gameFilter"><option value="all">All Games</option><option value="freefire">Free Fire</option><option value="roblox">Roblox</option><option value="valorant">Valorant</option><option value="fortnite">Fortnite</option><option value="minecraft">Minecraft</option><option value="apex">Apex Legends</option><option value="csgo">CS2</option><option value="pubg">PUBG</option><option value="other">Other</option></select>
+    <select class="v-sel" id="langFilter"><option value="all">All Languages</option><option value="python">Python</option><option value="lua">Lua</option><option value="cpp">C/C++</option><option value="csharp">C#</option><option value="javascript">JavaScript</option><option value="other">Other</option></select>
+    <button class="v-sortbtn" id="sortBtn"><i class="fas fa-arrow-down-wide-short"></i> Newest</button>
+    <button class="v-tbtn on" id="gridBtn" title="Grid"><i class="fas fa-th-large"></i></button>
+    <button class="v-tbtn" id="listBtn" title="List"><i class="fas fa-list"></i></button>
+</div>
+<div class="v-content"><div class="v-grid" id="grid"></div></div>
+</div>
+
+<!-- ═══════════ UPLOAD MODAL ═══════════ -->
+<div class="v-overlay" id="uploadOverlay">
+<div class="v-modal">
+<div class="vm-hd"><h2><i class="fas fa-cloud-upload-alt"></i> Publish to Vault</h2><button class="vm-x" id="closeModal"><i class="fas fa-times"></i></button></div>
+<div class="vm-bd">
+    <div class="vm-steps" id="stepsBar"><div class="vm-st active" data-s="1"><span class="sn">STEP 1</span>Type</div><div class="vm-st" data-s="2"><span class="sn">STEP 2</span>Details</div><div class="vm-st" data-s="3"><span class="sn">STEP 3</span>Files</div></div>
+    <form id="uploadForm">
+    <div class="sp act" data-panel="1">
+        <div class="vm-tc"><div class="vm-tcard sel" data-type="project"><i class="fas fa-folder-open"></i><h4>Full Project</h4><p>Complete project with files &amp; docs</p></div><div class="vm-tcard" data-type="code"><i class="fas fa-code"></i><h4>Code / Script</h4><p>Code snippet, hex values, offsets</p></div><div class="vm-tcard" data-type="tool"><i class="fas fa-wrench"></i><h4>Tool / Utility</h4><p>Executable tool or mod menu</p></div></div>
+        <div class="snav"><button type="button" class="snext" id="toStep2">Continue <i class="fas fa-arrow-right"></i></button></div>
+    </div>
+    <div class="sp" data-panel="2">
+        <div class="fg"><label class="fl">Project Name *</label><input type="text" class="fi" id="pName" placeholder="e.g. Void Breaker v4.2" required></div>
+        <div class="frow"><div class="fg"><label class="fl">Game *</label><select class="fi" id="pGame" required><option value="">Select...</option><option value="freefire">Free Fire</option><option value="roblox">Roblox</option><option value="valorant">Valorant</option><option value="fortnite">Fortnite</option><option value="minecraft">Minecraft</option><option value="apex">Apex</option><option value="csgo">CS2</option><option value="pubg">PUBG</option><option value="other">Other</option></select></div><div class="fg"><label class="fl">Language</label><select class="fi" id="pLang"><option value="python">Python</option><option value="lua">Lua</option><option value="cpp">C/C++</option><option value="csharp">C#</option><option value="javascript">JavaScript</option><option value="other">Other</option></select></div></div>
+        <div class="fg"><label class="fl">Description *</label><textarea class="fi" id="pDesc" placeholder="What does it do? How to use?" required></textarea></div>
+        <div class="fg"><label class="fl">Tags</label><div class="vm-tw" id="tagsWrap"><input type="text" class="vm-ti" id="tagInput" placeholder="Type tag + Enter"></div><div class="vm-th">Press Enter or comma to add</div></div>
+        <div class="snav"><button type="button" class="sback" id="backTo1"><i class="fas fa-arrow-left"></i> Back</button><button type="button" class="snext" id="toStep3">Continue <i class="fas fa-arrow-right"></i></button></div>
+    </div>
+    <div class="sp" data-panel="3">
+        <div class="fg" id="codeSection"><label class="fl">Paste Code</label><div class="vm-ce"><div class="vm-cebar"><span id="codeLangLabel">PYTHON</span><span>UTF-8</span></div><textarea class="vm-ceta" id="codeInput" placeholder="// Paste code here..."></textarea></div></div>
+        <div class="fg"><label class="fl">Preview Image</label><div class="vm-imgup" id="imgUpload"><i class="fas fa-image"></i><p>Click to upload <span>preview</span></p><small>PNG, JPG up to 5MB</small><input type="file" id="imgInput" accept="image/*"></div></div>
+        <div class="fg" id="fileSection"><label class="fl">Files</label><div class="vm-fdrop" id="fileDrop"><i class="fas fa-cloud-upload-alt di"></i><h4>Drag &amp; drop files</h4><p>.zip .rar .py .lua .js &bull; Max 25MB</p><input type="file" id="fileInput" accept=".zip,.rar,.7z,.py,.lua,.js,.ts,.cs,.cpp,.c,.h,.txt,.json,.xml,.cfg,.exe"></div><div id="fileInfoBox" style="display:none"></div></div>
+        <div class="snav"><button type="button" class="sback" id="backTo2"><i class="fas fa-arrow-left"></i> Back</button><button type="submit" class="vm-sub" id="submitBtn"><i class="fas fa-upload"></i> Publish</button></div>
+    </div>
+    </form>
+</div>
+</div>
+</div>
+
+<!-- ═══════════ FOOTER — SIMPLE ═══════════ -->
+<footer class="sk-ft">
+<div class="sk-ft-inner">
+    <div class="sk-ft-links">
+        <a href="https://script-kittens.com">Home</a>
+        <a href="https://script-kittens.com/#products">Products</a>
+        <a href="https://script-kittens.com/#pricing">Pricing</a>
+        <a href="https://cheats.script-kittens.com">Free Cheats</a>
+        <a href="https://discord.gg/AqkdsPMU7M" target="_blank">Discord</a>
+    </div>
+    <div class="sk-ft-socials">
+        <a href="https://discord.gg/AqkdsPMU7M" target="_blank"><i class="fab fa-discord"></i></a>
+        <a href="https://www.youtube.com/channel/UCIlubysLx-75CVZ1dcIfWvA" target="_blank"><i class="fab fa-youtube"></i></a>
+        <a href="https://www.instagram.com/fuqii69/" target="_blank"><i class="fab fa-instagram"></i></a>
+    </div>
+    <div class="sk-ft-copy">&copy; 2026 Script Kittens &bull; For educational purposes only</div>
+</div>
+</footer>
+
+<div class="v-toast-box" id="toastBox"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+/* Hamburger */
+const ham=document.getElementById('navHam'),mob=document.getElementById('navMob');
+ham.addEventListener('click',()=>mob.classList.toggle('open'));
+mob.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>mob.classList.remove('open')));
+
+/* Counter */
+const cts=document.querySelectorAll('.ct');
+const cio=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){const el=e.target,t=+el.dataset.t;let c=0;const s=t/45,tm=setInterval(()=>{c+=s;if(c>=t){c=t;clearInterval(tm)}el.textContent=Math.floor(c).toLocaleString()},28);cio.unobserve(el)}})},{threshold:.5});
+cts.forEach(c=>cio.observe(c));
+
+/* Data */
+const D=[
+{id:1,name:'Free Fire Diamond Generator',type:'project',game:'freefire',gl:'Free Fire',sub:'Diamonds',lang:'python',ver:'2.1',tag:'hot',paid:false,author:'1Shot',date:'2026-03-20',dl:5420,desc:'Complete diamond generation tool with GUI. Supports batch processing, proxy rotation and anti-detection.',img:'https://i.pinimg.com/736x/68/e5/2d/68e52d5a9acb0e6a6f5f5b1a5b6b8c8f.jpg',code:null},
+{id:2,name:'Void Breaker V4.2',type:'cheat',game:'roblox',gl:'Roblox',sub:'Blox Fruits',lang:'lua',ver:'4.2',tag:'hot',paid:false,author:'ZenMaster',date:'2026-03-18',dl:3247,desc:'Auto-farm, teleport, ESP and speed hack for Blox Fruits. Fully undetected with anti-ban.',img:null,code:'loadstring(game:HttpGet("https://raw.githubusercontent.com/..."))()\n-- Auto Farm + ESP + Teleport enabled'},
+{id:3,name:'Ghost Sight V1.0',type:'cheat',game:'valorant',gl:'Valorant',sub:'Triggerbot',lang:'cpp',ver:'1.0',tag:'elite',paid:false,author:'ShadowLeak',date:'2026-03-15',dl:1892,rating:4.9,desc:'External triggerbot with pixel detection. No memory reading — safe from Vanguard.',img:null,code:'#include <windows.h>\nvoid trigger_bot() {\n  while(active) { scan_crosshair(); }\n}'},
+{id:4,name:'Astral Client X',type:'project',game:'minecraft',gl:'Minecraft',sub:'Hacked Client',lang:'csharp',ver:'3.0',tag:'new',paid:false,author:'VoidCaster',date:'2026-03-19',dl:542,desc:'Full Minecraft hacked client — fly, speed, ESP, X-Ray, kill aura, auto-build.',img:null,code:'public class FlyModule : Module {\n  public override void OnEnable() {\n    Player.SetFlying(true);\n  }\n}'},
+{id:5,name:'SK Auto Headshot V5',type:'tool',game:'freefire',gl:'Free Fire',sub:'Aim Assist',lang:'python',ver:'5.0',tag:'hot',paid:false,author:'Raagu',date:'2026-03-17',dl:8901,desc:'AI-based auto-headshot for Free Fire. PC + mobile emulators. No root required.',img:null,code:null},
+{id:6,name:'Storm Walker',type:'cheat',game:'fortnite',gl:'Fortnite',sub:'Movement',lang:'cpp',ver:'1.2',tag:'new',paid:false,author:'StormDev',date:'2026-03-20',dl:891,desc:'Speed hack + double jump for Fortnite. Undetected by EAC. Hotkey toggle.',img:null,code:'float speed_mult = 3.5f;\nbool double_jump = true;\n// Hold SHIFT for speed boost'},
+{id:7,name:'Phantom Script V2',type:'code',game:'roblox',gl:'Roblox',sub:'Pet Simulator X',lang:'lua',ver:'2.0',tag:'hot',paid:false,author:'PhantomX',date:'2026-03-16',dl:2801,desc:'Auto-hatch, auto-collect, teleport for Pet Sim X. GUI with feature toggles.',img:null,code:'local phantom = require(game.ServerScriptService.Phantom)\nphantom:AutoHatch(true)\nphantom:AutoCollect(true)\nprint("Phantom v2 Active")'},
+{id:8,name:'Offset Dumper Pro',type:'tool',game:'other',gl:'Multi-Game',sub:'Reverse Engineering',lang:'python',ver:'2.3',tag:'verified',paid:false,author:'Yuta',date:'2026-03-14',dl:2104,desc:'Universal offset dumper for Unity & Unreal. Dumps classes, fields, methods with SDK gen.',img:null,code:'from dumper import UnityDumper\ndumper = UnityDumper("GameAssembly.dll")\ndumper.dump_all(output="sdk/")\nprint(f"Found {dumper.class_count} classes")'},
+{id:9,name:'FF Battlegrounds ESP',type:'cheat',game:'freefire',gl:'Free Fire',sub:'ESP + Wallhack',lang:'cpp',ver:'1.5',tag:'elite',paid:false,author:'Hassan',date:'2026-03-11',dl:4230,desc:'Full ESP — enemy positions, health, weapons, distance, loot.',img:null,code:'void draw_esp(Entity* e) {\n  draw_box(e->pos, e->size);\n  draw_health(e->hp);\n}'},
+{id:10,name:'Reaper Aim V3',type:'cheat',game:'apex',gl:'Apex Legends',sub:'Aimbot',lang:'cpp',ver:'3.0',tag:'elite',paid:false,author:'ApexHunter',date:'2026-03-12',dl:1337,desc:'Smooth aim assist with configurable FOV, bone selection, recoil control.',img:null,code:'void aim_lock(Player* t) {\n  Vec3 d = t->head - local->aim;\n  smooth_aim(d, cfg.smooth);\n}'},
+{id:11,name:'Premium Kitty Panel',type:'project',game:'freefire',gl:'Free Fire',sub:'Full Suite',lang:'csharp',ver:'8.0',tag:'elite',paid:true,price:'$9.99/mo',author:'1Shot',date:'2026-03-20',dl:12400,desc:'Aimbot Suite, ESP & Chams, Sniper Scope, Streamer Mode. Undetected since 2024.',img:null,code:null},
+{id:12,name:'Internal Kitty Panel',type:'project',game:'freefire',gl:'Free Fire',sub:'Internal',lang:'cpp',ver:'6.0',tag:'hot',paid:true,price:'$14.99/mo',author:'Raagu',date:'2026-03-19',dl:8200,desc:'Silent Aim, Head Rotation, Teleport, Speed Hack, Unlimited Ammo, No Recoil.',img:null,code:null},
+{id:13,name:'Valorant Kitty ESP',type:'cheat',game:'valorant',gl:'Valorant',sub:'Full ESP',lang:'cpp',ver:'2.1',tag:'verified',paid:true,price:'$19.99',author:'Zen',date:'2026-03-18',dl:3400,desc:'Box ESP, Skeleton, Health bars, Weapon info. Bypasses Vanguard.',img:null,code:null},
+];
+const icons={freefire:'fa-crosshairs',roblox:'fa-cube',valorant:'fa-bullseye',fortnite:'fa-bolt',minecraft:'fa-cubes',apex:'fa-skull-crossbones',csgo:'fa-gun',pubg:'fa-person-rifle',other:'fa-gamepad'};
+const lcol={python:'#3b82f6',lua:'#8b5cf6',cpp:'#f97316',csharp:'#22c55e',javascript:'#eab308',other:'#6b7280'};
+const tmap={hot:{l:'HOT',c:'vt-hot'},new:{l:'NEW',c:'vt-new'},elite:{l:'ELITE',c:'vt-elite'},verified:{l:'VERIFIED',c:'vt-verified'}};
+function ago(d){const x=Math.floor((Date.now()-new Date(d))/864e5);return x===0?'Today':x===1?'Yesterday':x+'d ago'}
+function fmtN(n){return n>=1e3?(n/1e3).toFixed(1).replace(/\.0$/,'')+'K':n+''}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+let S={mode:'free',filter:'all',game:'all',lang:'all',q:'',sort:'newest',view:'grid'};
+const grid=document.getElementById('grid'),sI=document.getElementById('searchInput'),gF=document.getElementById('gameFilter'),lF=document.getElementById('langFilter'),sB=document.getElementById('sortBtn');
+function getItems(){let r=D.filter(p=>S.mode==='free'?!p.paid:p.paid);if(S.filter!=='all')r=r.filter(p=>p.type===S.filter);if(S.game!=='all')r=r.filter(p=>p.game===S.game);if(S.lang!=='all')r=r.filter(p=>p.lang===S.lang);if(S.q){const q=S.q.toLowerCase();r=r.filter(p=>p.name.toLowerCase().includes(q)||p.desc.toLowerCase().includes(q)||p.author.toLowerCase().includes(q)||p.gl.toLowerCase().includes(q)||(p.sub&&p.sub.toLowerCase().includes(q)))}r.sort((a,b)=>{if(S.sort==='newest')return new Date(b.date)-new Date(a.date);if(S.sort==='oldest')return new Date(a.date)-new Date(b.date);return b.dl-a.dl});return r}
+function counts(){const base=D.filter(p=>S.mode==='free'?!p.paid:p.paid).filter(p=>{if(S.game!=='all'&&p.game!==S.game)return false;if(S.lang!=='all'&&p.lang!==S.lang)return false;if(S.q){const q=S.q.toLowerCase();if(!p.name.toLowerCase().includes(q)&&!p.desc.toLowerCase().includes(q)&&!p.author.toLowerCase().includes(q))return false}return true});document.getElementById('cAll').textContent=base.length;document.getElementById('cProj').textContent=base.filter(p=>p.type==='project').length;document.getElementById('cCheat').textContent=base.filter(p=>p.type==='cheat').length;document.getElementById('cCode').textContent=base.filter(p=>p.type==='code').length;document.getElementById('cTool').textContent=base.filter(p=>p.type==='tool').length;document.getElementById('resultCount').textContent=base.length}
+
+function render(){const items=getItems();counts();if(!items.length){grid.innerHTML='<div class="v-empty"><i class="fas fa-ghost"></i><h3>No results</h3><p>Try different filters.</p></div>';return}
+grid.innerHTML=items.map(p=>{const t=tmap[p.tag]||tmap.new,ic=icons[p.game]||icons.other,lc=lcol[p.lang]||lcol.other;
+return`<div class="vc" onmousemove="tM(event,this)" onmouseleave="rG(this)"><div class="vc-glow"></div>
+${p.img?`<img class="vc-img" src="${p.img}" alt="${p.name}" onerror="this.outerHTML='<div class=vc-ph><i class=\\'fas ${ic}\\'></i></div>'">`
+:p.code?'':`<div class="vc-ph"><i class="fas ${ic}"></i></div>`}
+<div class="vc-body"><div class="vc-top"><div class="vc-game"><i class="fas ${ic}"></i> ${p.gl} &bull; ${p.sub}</div><div class="vc-tags">${p.paid?'<span class="vt vt-paid">PAID</span>':''}<span class="vt ${t.c}">${t.l}</span><span class="vt" style="background:${lc}10;color:${lc};border:1px solid ${lc}15">${p.lang.toUpperCase()}</span></div></div>
+<div class="vc-title">${p.name}</div><div class="vc-desc">${p.desc}</div></div>
+${p.code?`<div class="vc-code"><button class="cpy" onclick="cC(this,\`${p.code.replace(/`/g,'\\`')}\`)"><i class="fas fa-copy"></i> Copy</button>${esc(p.code)}</div>`:''}
+<div class="vc-foot"><div class="vc-author"><div class="vc-av">${p.author.substring(0,2).toUpperCase()}</div><div><div class="vc-aname">${p.author}</div><div class="vc-adate">${ago(p.date)}${p.ver?' &bull; v'+p.ver:''}</div></div></div>
+<div class="vc-stats"><div class="vc-stat"><i class="fas fa-download"></i> ${fmtN(p.dl)}</div>${p.rating?`<div class="vc-stat"><i class="fas fa-star" style="color:var(--go)"></i> ${p.rating}</div>`:''}${p.price?`<div class="vc-stat" style="color:var(--g);font-weight:700">${p.price}</div>`:''}</div></div>
+<div class="vc-actions"><button class="vc-dl${p.paid?' paid':''}" onclick="hDL(${p.id},this)"><i class="fas ${p.paid?'fa-shopping-cart':'fa-download'}"></i> ${p.paid?'Buy Now':'Download'}</button>${p.code?`<button class="vc-sec" title="Copy" onclick="cC(this,\`${p.code.replace(/`/g,'\\`')}\`)"><i class="fas fa-copy"></i></button>`:''}<button class="vc-sec" title="Share"><i class="fas fa-share-alt"></i></button></div></div>`}).join('');
+if(typeof gsap!=='undefined')gsap.fromTo('.vc',{opacity:0,y:20},{opacity:1,y:0,duration:.4,stagger:.04,ease:'power2.out',clearProps:'all'})}
+
+window.tM=function(e,c){const r=c.getBoundingClientRect();c.style.setProperty('--mx',(e.clientX-r.left)/r.width*100+'%');c.style.setProperty('--my',(e.clientY-r.top)/r.height*100+'%')};
+window.rG=function(c){c.style.setProperty('--mx','50%');c.style.setProperty('--my','50%')};
+
+/* Events */
+document.getElementById('modeToggle').addEventListener('click',e=>{const b=e.target.closest('.v-modebtn');if(!b)return;document.querySelectorAll('.v-modebtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');S.mode=b.dataset.mode;render()});
+document.getElementById('tabsBar').addEventListener('click',e=>{const b=e.target.closest('.v-tab');if(!b)return;document.querySelectorAll('.v-tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');S.filter=b.dataset.f;render()});
+let st;sI.addEventListener('input',e=>{clearTimeout(st);st=setTimeout(()=>{S.q=e.target.value.trim();render()},200)});
+gF.addEventListener('change',e=>{S.game=e.target.value;render()});lF.addEventListener('change',e=>{S.lang=e.target.value;render()});
+const sc=['newest','popular','oldest'],sl={newest:'Newest',popular:'Popular',oldest:'Oldest'},si={newest:'fa-arrow-down-wide-short',popular:'fa-fire',oldest:'fa-arrow-up-short-wide'};
+sB.addEventListener('click',()=>{const i=(sc.indexOf(S.sort)+1)%sc.length;S.sort=sc[i];sB.innerHTML=`<i class="fas ${si[S.sort]}"></i> ${sl[S.sort]}`;render()});
+document.getElementById('gridBtn').addEventListener('click',()=>{S.view='grid';grid.classList.remove('list');document.getElementById('gridBtn').classList.add('on');document.getElementById('listBtn').classList.remove('on')});
+document.getElementById('listBtn').addEventListener('click',()=>{S.view='list';grid.classList.add('list');document.getElementById('listBtn').classList.add('on');document.getElementById('gridBtn').classList.remove('on')});
+
+window.cC=function(b,c){navigator.clipboard.writeText(c);const o=b.innerHTML;b.innerHTML='<i class="fas fa-check"></i> Copied!';b.style.color='var(--g)';setTimeout(()=>{b.innerHTML=o;b.style.color=''},1500)};
+window.hDL=function(id,b){const p=D.find(x=>x.id===id);if(p.paid){window.open('https://discord.gg/AqkdsPMU7M','_blank');return}b.innerHTML='<i class="fas fa-check"></i> Starting...';b.style.background='var(--g)';toast('"'+p.name+'" download started!','ok');setTimeout(()=>{b.innerHTML='<i class="fas fa-download"></i> Download';b.style.background=''},2e3)};
+
+/* Upload Modal */
+const ov=document.getElementById('uploadOverlay');
+document.getElementById('heroUploadBtn').addEventListener('click',()=>ov.classList.add('open'));
+document.getElementById('closeModal').addEventListener('click',()=>ov.classList.remove('open'));
+ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.remove('open')});
+let cS=1,sT='project';
+function showS(n){cS=n;document.querySelectorAll('.sp').forEach(p=>p.classList.toggle('act',+p.dataset.panel===n));document.querySelectorAll('.vm-st').forEach(s=>{const sn=+s.dataset.s;s.classList.toggle('active',sn===n);s.classList.toggle('done',sn<n)});if(n===3){const cs=document.getElementById('codeSection'),fs=document.getElementById('fileSection');if(sT==='code'){cs.style.display='block';fs.style.display='none'}else{cs.style.display='none';fs.style.display='block'}}}
+document.getElementById('toStep2').addEventListener('click',()=>showS(2));
+document.getElementById('toStep3').addEventListener('click',()=>{if(!document.getElementById('pName').value.trim()||!document.getElementById('pGame').value){toast('Fill name & game','err');return}document.getElementById('codeLangLabel').textContent=document.getElementById('pLang').value.toUpperCase();showS(3)});
+document.getElementById('backTo1').addEventListener('click',()=>showS(1));document.getElementById('backTo2').addEventListener('click',()=>showS(2));
+document.querySelectorAll('.vm-tcard').forEach(c=>{c.addEventListener('click',()=>{document.querySelectorAll('.vm-tcard').forEach(x=>x.classList.remove('sel'));c.classList.add('sel');sT=c.dataset.type})});
+const tw=document.getElementById('tagsWrap'),ti=document.getElementById('tagInput');let tags=[];
+ti.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===','){e.preventDefault();const v=ti.value.trim().replace(/,/g,'');if(v&&tags.length<6&&!tags.includes(v)){tags.push(v);rT()}ti.value=''}});
+function rT(){tw.querySelectorAll('.vm-tp').forEach(x=>x.remove());tags.forEach((t,i)=>{const el=document.createElement('span');el.className='vm-tp';el.innerHTML=`${t} <i class="fas fa-times" onclick="rmT(${i})"></i>`;tw.insertBefore(el,ti)})}
+window.rmT=function(i){tags.splice(i,1);rT()};
+const iu=document.getElementById('imgUpload'),ii=document.getElementById('imgInput');
+ii.addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;if(f.size>5*1024*1024){toast('Max 5MB','err');return}const r=new FileReader();r.onload=ev=>{iu.classList.add('has');const o=iu.querySelector('img');if(o)o.remove();const img=document.createElement('img');img.src=ev.target.result;iu.appendChild(img)};r.readAsDataURL(f)});
+const fd=document.getElementById('fileDrop'),fi2=document.getElementById('fileInput'),fib=document.getElementById('fileInfoBox');
+fi2.addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;if(f.size>25*1024*1024){toast('Max 25MB','err');return}fd.classList.add('has');fib.style.display='flex';fib.className='vm-finfo';fib.innerHTML=`<i class="fas fa-file-archive"></i><div><div class="fn">${f.name}</div><div class="fs">${(f.size/1024/1024).toFixed(2)} MB</div></div><i class="fas fa-times fx" onclick="cF()"></i>`});
+window.cF=function(){fd.classList.remove('has');fib.style.display='none';fi2.value=''};
+document.getElementById('uploadForm').addEventListener('submit',e=>{e.preventDefault();const b=document.getElementById('submitBtn'),n=document.getElementById('pName').value.trim();if(!n){toast('Name required','err');return}b.disabled=true;b.innerHTML='<i class="fas fa-spinner fa-spin"></i> Publishing...';setTimeout(()=>{b.classList.add('ok');b.innerHTML='<i class="fas fa-check"></i> Published!';toast('"'+n+'" published!','ok');setTimeout(()=>{ov.classList.remove('open');b.disabled=false;b.classList.remove('ok');b.innerHTML='<i class="fas fa-upload"></i> Publish';document.getElementById('uploadForm').reset();tags=[];rT();iu.classList.remove('has');const im=iu.querySelector('img');if(im)im.remove();cF();showS(1)},1500)},1500)});
+
+function toast(m,t='ok'){const c=document.getElementById('toastBox'),el=document.createElement('div');el.className='v-toast '+t;el.innerHTML=`<i class="fas ${t==='ok'?'fa-check-circle':'fa-exclamation-circle'}"></i> ${m}`;c.appendChild(el);setTimeout(()=>{el.style.animation='to .3s ease forwards';setTimeout(()=>el.remove(),300)},3e3)}
+
+/* GSAP */
+if(typeof gsap!=='undefined'&&typeof ScrollTrigger!=='undefined'){
+gsap.registerPlugin(ScrollTrigger);
+gsap.from('.vh-badge',{opacity:0,y:-12,duration:.5,delay:.15});
+gsap.from('.vh-title',{opacity:0,y:20,duration:.6,delay:.3});
+gsap.from('.vh-sub',{opacity:0,duration:.5,delay:.5});
+gsap.from('.vh-btns',{opacity:0,y:12,duration:.5,delay:.65});
+gsap.from('.vh-stat',{opacity:0,y:12,duration:.35,stagger:.07,delay:.85});
+gsap.from('.v-modebar',{opacity:0,y:12,duration:.4,scrollTrigger:{trigger:'.v-modebar',start:'top 90%'}});
+gsap.from('.v-tabs',{opacity:0,y:10,duration:.4,scrollTrigger:{trigger:'.v-tabs',start:'top 90%'}});
+}
+render();
+});
+</script>
+
+<!-- Analytics Tracker -->
+<script src="https://script-kittens.com/analytics.js" defer></script>
+</body>
+</html>

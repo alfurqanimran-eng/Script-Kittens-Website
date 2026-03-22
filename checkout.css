@@ -1,0 +1,493 @@
+/* ================================================
+   LOGICAL PROFESSIONAL CHECKOUT (V7)
+   Script Kittens | 2026
+================================================ */
+
+:root {
+    /* Logic: Define strict color palette */
+    --bg-body: #050505;
+    --bg-card: #0A0A0A;
+    --bg-input: #111111;
+
+    --border-subtle: #1F1F1F;
+    --border-focus: #333333;
+
+    --text-primary: #FFFFFF;
+    --text-secondary: #AAAAAA;
+    --text-muted: #666666;
+
+    --accent-primary: #FFFFFF;
+    --accent-hover: #E0E0E0;
+
+    --radius-std: 6px;
+
+    --spacing-unit: 8px;
+    /* Logic: 8px grid system */
+}
+
+/* 1. RESET & BASE */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--bg-body);
+    font-family: 'Inter', sans-serif;
+    color: var(--text-primary);
+    line-height: 1.5;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: 0.2s;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-family: inherit;
+}
+
+/* 2. HEADER - Standard Professional */
+.site-header {
+    height: 72px;
+    /* Logic: 9 * 8px */
+    border-bottom: 1px solid var(--border-subtle);
+    background: rgba(5, 5, 5, 0.95);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+}
+
+.header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    height: 100%;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.brand-text {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    letter-spacing: -0.02em;
+    color: white;
+}
+
+.nav-links {
+    display: flex;
+    gap: 32px;
+}
+
+.nav-links a {
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.nav-links a:hover {
+    color: white;
+}
+
+/* 3. LAYOUT - Grid Logic */
+.checkout-layout {
+    max-width: 1200px;
+    margin: 120px auto 80px;
+    /* Top margin accounts for fixed header */
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    /* Logical split */
+    gap: 48px;
+    align-items: start;
+}
+
+/* 4. COMPONENTS - Alert Card */
+.alert-card {
+    background: #121212;
+    border: 1px solid #333;
+    border-radius: var(--radius-std);
+    padding: 24px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.alert-card.error {
+    border-left: 4px solid #FF4444;
+}
+
+.alert-icon {
+    font-size: 24px;
+    color: #FF4444;
+}
+
+.alert-info h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.alert-info p {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.btn-discord {
+    background: #5865F2;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 13px;
+    transition: 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.btn-discord:hover {
+    background: #4752C4;
+}
+
+/* 5. COMPONENTS - Steps */
+.steps-indicator {
+    display: flex;
+    gap: 32px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 16px;
+}
+
+.step {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 16px;
+    margin-bottom: -17px;
+    /* Align with border */
+    border-bottom: 2px solid transparent;
+}
+
+.step.active {
+    color: white;
+    border-bottom-color: white;
+}
+
+.step-num {
+    background: #222;
+    color: #888;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.step.active .step-num {
+    background: white;
+    color: black;
+}
+
+/* 6. MAIN CONTENT */
+.section-header {
+    margin-bottom: 32px;
+}
+
+.section-header h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 8px;
+    font-family: 'Outfit', sans-serif;
+}
+
+.section-header p {
+    color: var(--text-secondary);
+}
+
+.cart-list {
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-std);
+    overflow: hidden;
+}
+
+.cart-row {
+    display: grid;
+    grid-template-columns: 64px 1fr 120px 80px 40px;
+    /* Logical columns */
+    gap: 24px;
+    align-items: center;
+    background: var(--bg-card);
+    padding: 24px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.cart-row:last-child {
+    border-bottom: none;
+}
+
+.item-visual img {
+    width: 64px;
+    height: 64px;
+    border-radius: 4px;
+    object-fit: cover;
+    background: #222;
+}
+
+.item-meta h4 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.item-tag {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+.qty-control {
+    display: flex;
+    align-items: center;
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+}
+
+.qty-btn {
+    width: 32px;
+    height: 32px;
+    color: #888;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.qty-btn:hover {
+    color: white;
+    background: #222;
+}
+
+.qty-control input {
+    width: 40px;
+    background: none;
+    border: none;
+    color: white;
+    text-align: center;
+}
+
+.item-cost .price {
+    font-weight: 700;
+    font-size: 15px;
+}
+
+.remove-btn {
+    color: #555;
+}
+
+.remove-btn:hover {
+    color: #FF4444;
+}
+
+.step-actions {
+    margin-top: 32px;
+}
+
+.btn-primary {
+    width: 100%;
+    height: 48px;
+    background: white;
+    color: black;
+    font-weight: 700;
+    font-size: 14px;
+    border-radius: var(--radius-std);
+    transition: 0.2s;
+}
+
+.btn-primary:hover {
+    background: #E0E0E0;
+}
+
+/* 7. SIDEBAR */
+.summary-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-std);
+    padding: 32px;
+    position: sticky;
+    top: 100px;
+}
+
+.summary-header {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.summary-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'Outfit', sans-serif;
+}
+
+.summary-rows .row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    color: var(--text-secondary);
+}
+
+.summary-rows .highlight {
+    color: #4CAF50;
+}
+
+.summary-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-subtle);
+    font-weight: 700;
+    font-size: 18px;
+    color: white;
+}
+
+.promo-input {
+    display: flex;
+    gap: 8px;
+    margin-top: 32px;
+}
+
+.promo-input input {
+    flex: 1;
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    height: 40px;
+    padding: 0 12px;
+    color: white;
+    border-radius: 4px;
+}
+
+.promo-input button {
+    padding: 0 16px;
+    background: #222;
+    color: white;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 13px;
+}
+
+.secure-badges {
+    margin-top: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.secure-badges i {
+    width: 20px;
+    text-align: center;
+}
+
+/* 8. FOOTER - Logical Sitemap */
+.site-footer {
+    border-top: 1px solid var(--border-subtle);
+    background: #080808;
+    padding: 80px 0 40px;
+}
+
+.footer-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 64px;
+}
+
+.footer-col h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 24px;
+}
+
+.footer-col ul {
+    list-style: none;
+}
+
+.footer-col li {
+    margin-bottom: 12px;
+}
+
+.footer-col a {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.footer-col a:hover {
+    color: white;
+    text-decoration: underline;
+}
+
+.brand-col p {
+    color: var(--text-muted);
+    font-size: 13px;
+    margin-bottom: 24px;
+    max-width: 240px;
+}
+
+.socials {
+    display: flex;
+    gap: 16px;
+}
+
+.socials a {
+    width: 32px;
+    height: 32px;
+    background: #181818;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    color: #888;
+}
+
+.socials a:hover {
+    background: white;
+    color: black;
+    text-decoration: none;
+}
+
+.footer-bar {
+    max-width: 1200px;
+    margin: 64px auto 0;
+    padding: 32px 24px 0;
+    border-top: 1px solid var(--border-subtle);
+    text-align: center;
+    color: #444;
+    font-size: 12px;
+}

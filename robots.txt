@@ -1,0 +1,42 @@
+User-agent: *
+Allow: /
+Allow: /cheats
+
+# Block private/app pages from being indexed
+Disallow: /profile
+Disallow: /checkout
+Disallow: /static/
+
+# ═══ AI SEARCH BOTS — allow all so they can cite your site ═══
+# ChatGPT / OpenAI
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+# Perplexity
+User-agent: PerplexityBot
+Allow: /
+
+# Anthropic / Claude
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+# Google Gemini & AI Overviews
+User-agent: Google-Extended
+Allow: /
+
+# Microsoft Copilot (via Bing)
+User-agent: bingbot
+Allow: /
+
+# Block Common Crawl (training data scraper — not a search engine)
+User-agent: CCBot
+Disallow: /
+
+# Sitemap location
+Sitemap: https://script-kittens.com/sitemap.xml

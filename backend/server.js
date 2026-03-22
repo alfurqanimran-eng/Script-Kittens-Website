@@ -12,6 +12,7 @@ const path = require('path');
 
 const authRoutes = require('./routes/auth');
 const oauthRoutes = require('./routes/oauth');
+const analyticsRoutes = require('./routes/analytics');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -74,6 +75,8 @@ app.use('/api/auth', authLimiter, authRoutes);
 app.use('/auth', authLimiter, authRoutes);
 app.use('/api/oauth', apiLimiter, oauthRoutes);
 app.use('/oauth', apiLimiter, oauthRoutes);
+app.use('/api/analytics', apiLimiter, analyticsRoutes);
+app.use('/analytics', apiLimiter, analyticsRoutes);
 
 /* ─── Health Check ─── */
 app.get('/api/health', (req, res) => {

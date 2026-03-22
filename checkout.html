@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <!-- ═══ PRIMARY SEO ═══ -->
+    <title>Checkout | Script Kittens</title>
+    <meta name="description" content="Complete your Script Kittens premium subscription purchase securely.">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="canonical" href="https://script-kittens.com/checkout">
+
+    <!-- ═══ OPEN GRAPH ═══ -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Script Kittens">
+    <meta property="og:title" content="Checkout | Script Kittens">
+    <meta property="og:description" content="Complete your purchase securely with Script Kittens premium checkout.">
+    <meta property="og:url" content="https://script-kittens.com/checkout">
+    <meta property="og:image" content="https://script-kittens.com/logo.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/gif" href="static/favicon.gif">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="shortcut icon" href="static/favicon.gif">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="checkout.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+
+    <!-- 1. HEADER (Kept Simple & Professional) -->
+    <header class="site-header">
+        <div class="header-inner">
+            <div class="brand">
+                <span class="brand-text">SCRIPT KITTENS</span>
+            </div>
+            <nav class="nav-links">
+                <a href="/">Home</a>
+                <a href="/cheats">Cheats</a>
+                <a href="/profile">Profile</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 2. MAIN LAYOUT (Logical Grid) -->
+    <main class="checkout-layout">
+
+        <!-- Left Column: Content -->
+        <section class="checkout-content">
+
+            <!-- Logic: Alert goes first -->
+            <div class="alert-card error">
+                <div class="alert-icon"><i class="fab fa-discord"></i></div>
+                <div class="alert-info">
+                    <h3>Payment Disabled</h3>
+                    <p>Purchases are currently disabled on the website. Please join our Discord to open a ticket.</p>
+                </div>
+                <div class="alert-action">
+                    <a href="https://discord.gg/AqkdsPMU7M" target="_blank" class="btn btn-discord">Join Discord</a>
+                </div>
+            </div>
+
+            <!-- Logic: Progress Steps -->
+            <div class="steps-indicator">
+                <div class="step active"><span class="step-num">01</span> Review</div>
+                <div class="step"><span class="step-num">02</span> Details</div>
+                <div class="step"><span class="step-num">03</span> Payment</div>
+            </div>
+
+            <!-- Step 1: Cart Review -->
+            <div class="step-container active" id="step-1">
+                <div class="section-header">
+                    <h2>Cart Review</h2>
+                    <p>Verify your selected products.</p>
+                </div>
+
+                <div class="cart-list">
+                    <!-- Item 1 -->
+                    <div class="cart-row">
+                        <div class="item-visual">
+                            <img src="https://i.postimg.cc/sg838cbj/download-(7).gif" alt="Product">
+                        </div>
+                        <div class="item-meta">
+                            <h4>Premium Kitty Panel</h4>
+                            <span class="item-tag">Lifetime</span>
+                        </div>
+                        <div class="item-qty">
+                            <div class="qty-control">
+                                <button class="qty-btn minus"><i class="fas fa-minus"></i></button>
+                                <input type="text" value="1" readonly>
+                                <button class="qty-btn plus"><i class="fas fa-plus"></i></button>
+                            </div>
+                        </div>
+                        <div class="item-cost">
+                            <span class="price">$49.99</span>
+                        </div>
+                        <button class="remove-btn"><i class="fas fa-times"></i></button>
+                    </div>
+
+                    <!-- Item 2 -->
+                    <div class="cart-row">
+                        <div class="item-visual">
+                            <img src="https://i.postimg.cc/RVgS19R6/jentop-lisabottom-fanfiction-Fanfiction-amreading-books-wattpad.gif"
+                                alt="Product">
+                        </div>
+                        <div class="item-meta">
+                            <h4>API Access Pro</h4>
+                            <span class="item-tag">Monthly</span>
+                        </div>
+                        <div class="item-qty">
+                            <div class="qty-control">
+                                <button class="qty-btn minus"><i class="fas fa-minus"></i></button>
+                                <input type="text" value="1" readonly>
+                                <button class="qty-btn plus"><i class="fas fa-plus"></i></button>
+                            </div>
+                        </div>
+                        <div class="item-cost">
+                            <span class="price">$29.99</span>
+                        </div>
+                        <button class="remove-btn"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
+
+                <div class="step-actions">
+                    <button class="btn btn-primary" onclick="nextStep(2)">Continue to Details</button>
+                </div>
+            </div>
+
+            <!-- Placeholder for other steps (hidden by JS logic) -->
+            <div class="step-container" id="step-2" style="display:none;">
+                <!-- Logic: Details Form -->
+            </div>
+        </section>
+
+        <!-- Right Column: Sidebar -->
+        <aside class="checkout-sidebar">
+            <div class="summary-card">
+                <div class="summary-header">
+                    <h3>Order Summary</h3>
+                </div>
+                <div class="summary-rows">
+                    <div class="row">
+                        <span>Subtotal</span>
+                        <span>$79.98</span>
+                    </div>
+                    <div class="row">
+                        <span>Discount</span>
+                        <span class="highlight">-$0.00</span>
+                    </div>
+                    <div class="row">
+                        <span>Tax</span>
+                        <span>$0.00</span>
+                    </div>
+                </div>
+                <div class="summary-total">
+                    <span>Total</span>
+                    <span class="total-price">$79.98</span>
+                </div>
+                <div class="promo-input">
+                    <input type="text" placeholder="Promo Code">
+                    <button>Apply</button>
+                </div>
+                <div class="secure-badges">
+                    <span><i class="fas fa-lock"></i> SSL Encrypted</span>
+                    <span><i class="fas fa-shield-alt"></i> Secure Payment</span>
+                </div>
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- 3. FOOTER (Logical Hierarchy) -->
+    <footer class="site-footer">
+        <div class="footer-grid">
+            <div class="footer-col brand-col">
+                <h4>Script Kittens</h4>
+                <p>Premium automation tools for professional gamers.</p>
+                <div class="socials">
+                    <a href="#"><i class="fab fa-discord"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>Products</h4>
+                <ul>
+                    <li><a href="#">Cheats</a></li>
+                    <li><a href="#">Spoofers</a></li>
+                    <li><a href="#">Source Code</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="#">Status</a></li>
+                    <li><a href="#">Documentation</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Refund Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bar">
+            <p>&copy; 2026 Script Kittens. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="checkout.js"></script>
+</body>
+
+</html>
