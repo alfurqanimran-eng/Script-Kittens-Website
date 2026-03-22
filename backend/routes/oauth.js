@@ -63,6 +63,8 @@ async function findOrCreateOAuthUser(provider, providerProfile) {
         );
         existing[0].provider = provider;
         existing[0].avatar_url = avatar || existing[0].avatar_url;
+        // Use the provider's display name for the welcome toast
+        existing[0].display_name = username || existing[0].username;
         return existing[0];
     }
 
@@ -83,6 +85,8 @@ async function findOrCreateOAuthUser(provider, providerProfile) {
             );
             emailUser[0].provider = provider; // for Discord notification (which method they used this time)
             emailUser[0].avatar_url = avatar || emailUser[0].avatar_url;
+            // Use the provider's display name for the welcome toast
+            emailUser[0].display_name = username || emailUser[0].username;
             return emailUser[0];
         }
     }
@@ -143,7 +147,8 @@ function loginAndRedirect(res, req, user) {
     if (notifyDiscordLogin) notifyDiscordLogin(user, provider, getRealIP(req), req);
 
     // Redirect to login page with token (login page JS will grab it and redirect to home)
-    return res.redirect(`${LOGIN_URL}?auth=success&token=${token}`);
+    const displayName = encodeURIComponent(user.display_name || user.username || '');
+    return res.redirect(`${LOGIN_URL}?auth=success&token=${token}&provider_name=${displayName}`);
 }
 
 /* ═══════════════════════════════════════════════ */

@@ -1,16 +1,15 @@
 /* ============================================
  * Script Kittens — Frontend Analytics Tracker
- * Collects EVERYTHING possible from browser
- * Sends to backend → Discord
+ * 100% non-blocking — runs after page is idle
  * ============================================ */
 (function () {
     'use strict';
 
-    const API = 'https://api.script-kittens.com';
+    var API = 'https://api.script-kittens.com';
 
     /* ─── Session ID ─── */
     function getSessionId() {
-        let sid = sessionStorage.getItem('sk_sid');
+        var sid = sessionStorage.getItem('sk_sid');
         if (!sid) {
             sid = 'sk_' + Math.random().toString(36).slice(2, 10) + '_' + Date.now();
             sessionStorage.setItem('sk_sid', sid);
@@ -18,306 +17,202 @@
         return sid;
     }
 
-    /* ─── Logged-in user from localStorage ─── */
+    /* ─── Logged-in user ─── */
     function getUser() {
         try {
-            const raw = localStorage.getItem('sk_user');
-            if (raw) {
-                const u = JSON.parse(raw);
-                if (u && u.username) return u;
-            }
+            var raw = localStorage.getItem('sk_user');
+            if (raw) { var u = JSON.parse(raw); if (u && u.username) return u; }
         } catch (e) {}
-        const username = localStorage.getItem('userUsername');
-        const email    = localStorage.getItem('userEmail');
-        const role     = localStorage.getItem('userRole');
-        if (username) return { username, email, role };
+        var username = localStorage.getItem('userUsername');
+        if (username) return { username: username, email: localStorage.getItem('userEmail'), role: localStorage.getItem('userRole') };
         return null;
     }
 
-    /* ─── GPU Info via WebGL ─── */
-    function getGPU() {
+    /* ─── Quick sync data (zero lag) ─── */
+    function getQuickData() {
+        var gpu = 'Unknown', gpuVendor = 'Unknown';
         try {
-            const canvas = document.createElement('canvas');
-            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-            if (!gl) return { gpu: 'Unknown', gpuVendor: 'Unknown' };
-            const ext = gl.getExtension('WEBGL_debug_renderer_info');
-            if (!ext) return { gpu: 'WebGL (no debug info)', gpuVendor: 'Unknown' };
-            return {
-                gpu:       gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) || 'Unknown',
-                gpuVendor: gl.getParameter(ext.UNMASKED_VENDOR_WEBGL)   || 'Unknown',
-            };
-        } catch (e) {
-            return { gpu: 'Error', gpuVendor: 'Error' };
-        }
-    }
-
-    /* ─── Canvas Fingerprint (unique per device/GPU combo) ─── */
-    function getCanvasFingerprint() {
-        try {
-            const canvas = document.createElement('canvas');
-            canvas.width = 280; canvas.height = 60;
-            const ctx = canvas.getContext('2d');
-            ctx.textBaseline = 'top';
-            ctx.font = '14px Arial';
-            ctx.fillStyle = '#dc2626';
-            ctx.fillRect(0, 0, 280, 60);
-            ctx.fillStyle = '#ffffff';
-            ctx.fillText('Script Kittens \uD83D\uDC31 \u2665 0xDEADBEEF', 5, 5);
-            ctx.fillStyle = 'rgba(100,200,255,0.5)';
-            ctx.fillText('Script Kittens \uD83D\uDC31 \u2665 0xDEADBEEF', 5, 30);
-            const data = canvas.toDataURL();
-            // Hash it to a short ID
-            let hash = 0;
-            for (let i = 0; i < data.length; i++) {
-                hash = ((hash << 5) - hash) + data.charCodeAt(i);
-                hash |= 0;
+            var c = document.createElement('canvas');
+            var gl = c.getContext('webgl') || c.getContext('experimental-webgl');
+            if (gl) {
+                var ext = gl.getExtension('WEBGL_debug_renderer_info');
+                if (ext) {
+                    gpu = gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) || 'Unknown';
+                    gpuVendor = gl.getParameter(ext.UNMASKED_VENDOR_WEBGL) || 'Unknown';
+                }
             }
-            return 'fp_' + Math.abs(hash).toString(16).toUpperCase();
-        } catch (e) {
-            return 'fp_error';
-        }
-    }
+        } catch (e) {}
 
-    /* ─── Network Info ─── */
-    function getNetwork() {
-        try {
-            const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-            if (!conn) return { netType: 'Unknown', netSpeed: 'Unknown', netRTT: 'Unknown', dataSaver: false };
-            return {
-                netType:   conn.effectiveType || 'Unknown',    // "4g", "3g", "2g"
-                netSpeed:  conn.downlink ? `${conn.downlink} Mbps` : 'Unknown',
-                netRTT:    conn.rtt ? `${conn.rtt}ms` : 'Unknown',
-                dataSaver: conn.saveData || false,
-            };
-        } catch (e) {
-            return { netType: 'Error', netSpeed: 'Error', netRTT: 'Error', dataSaver: false };
-        }
-    }
+        var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
 
-    /* ─── Battery Status ─── */
-    async function getBattery() {
-        try {
-            if (!navigator.getBattery) return null;
-            const b = await navigator.getBattery();
-            return {
-                level:    Math.round(b.level * 100) + '%',
-                charging: b.charging,
-            };
-        } catch (e) {
-            return null;
-        }
-    }
-
-    /* ─── Ad Blocker Detection ─── */
-    function detectAdBlocker() {
-        try {
-            const test = document.createElement('div');
-            test.innerHTML = '&nbsp;';
-            test.className = 'adsbox pub_300x250 pub_300x250m pub_728x90 text-ad textAd text_ad text_ads text-ads';
-            test.style.cssText = 'position:absolute;top:-1000px;left:-1000px;width:1px;height:1px;';
-            document.body.appendChild(test);
-            const blocked = test.offsetHeight === 0 || test.offsetParent === null;
-            document.body.removeChild(test);
-            return blocked;
-        } catch (e) {
-            return null;
-        }
-    }
-
-    /* ─── VPN / Proxy Detection via WebRTC ─── */
-    function getRealIP() {
-        return new Promise((resolve) => {
-            try {
-                const pc = new RTCPeerConnection({ iceServers: [] });
-                const ips = new Set();
-                pc.createDataChannel('');
-                pc.createOffer().then(o => pc.setLocalDescription(o)).catch(() => resolve(null));
-                pc.onicecandidate = (e) => {
-                    if (!e || !e.candidate) {
-                        pc.close();
-                        resolve(ips.size > 0 ? [...ips].join(', ') : null);
-                        return;
-                    }
-                    const match = e.candidate.candidate.match(/(\d{1,3}(?:\.\d{1,3}){3})/g);
-                    if (match) match.forEach(ip => {
-                        if (!ip.startsWith('0.') && !ip.startsWith('127.')) ips.add(ip);
-                    });
-                };
-                // Timeout after 2s
-                setTimeout(() => { pc.close(); resolve(ips.size > 0 ? [...ips].join(', ') : null); }, 2000);
-            } catch (e) {
-                resolve(null);
-            }
-        });
-    }
-
-    /* ─── Dark mode / display preferences ─── */
-    function getPreferences() {
         return {
-            darkMode:        window.matchMedia('(prefers-color-scheme: dark)').matches,
-            reducedMotion:   window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-            highContrast:    window.matchMedia('(prefers-contrast: high)').matches,
-            doNotTrack:      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes',
-            cookiesEnabled:  navigator.cookieEnabled,
-            touchscreen:     navigator.maxTouchPoints > 0,
-            pdfViewer:       navigator.pdfViewerEnabled || false,
+            page:       window.location.href,
+            referrer:   document.referrer || 'direct',
+            screen:     window.screen.width + 'x' + window.screen.height,
+            viewport:   window.innerWidth + 'x' + window.innerHeight,
+            colorDepth: window.screen.colorDepth + '-bit',
+            pixelRatio: window.devicePixelRatio || 1,
+            ram:        navigator.deviceMemory || null,
+            cores:      navigator.hardwareConcurrency || null,
+            gpu:        gpu,
+            gpuVendor:  gpuVendor,
+            netType:    conn ? (conn.effectiveType || 'Unknown') : 'Unknown',
+            netSpeed:   conn && conn.downlink ? conn.downlink + ' Mbps' : 'Unknown',
+            netRTT:     conn && conn.rtt ? conn.rtt + 'ms' : 'Unknown',
+            dataSaver:  conn ? (conn.saveData || false) : false,
+            language:   navigator.language || null,
+            languages:  (navigator.languages || []).join(', '),
+            timezone:   Intl.DateTimeFormat().resolvedOptions().timeZone || null,
+            darkMode:   window.matchMedia('(prefers-color-scheme: dark)').matches,
+            doNotTrack: navigator.doNotTrack === '1',
+            cookiesEnabled: navigator.cookieEnabled,
+            touchscreen: navigator.maxTouchPoints > 0,
+            user:       getUser(),
+            sessionId:  getSessionId(),
         };
     }
 
-    /* ─── Tab focus tracking ─── */
-    let tabSwitches = 0;
-    document.addEventListener('visibilitychange', () => {
-        if (document.hidden) tabSwitches++;
-    });
+    /* ─── Slow async data (collected in background, sent separately) ─── */
+    function collectSlowData() {
+        var result = {};
 
-    /* ─── Scroll depth tracking ─── */
-    let maxScroll = 0;
-    window.addEventListener('scroll', () => {
-        const depth = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
-        if (depth > maxScroll) maxScroll = Math.min(depth, 100);
-    }, { passive: true });
+        // Canvas fingerprint
+        try {
+            var c = document.createElement('canvas');
+            c.width = 200; c.height = 40;
+            var ctx = c.getContext('2d');
+            ctx.fillStyle = '#dc2626';
+            ctx.fillRect(0, 0, 200, 40);
+            ctx.fillStyle = '#fff';
+            ctx.font = '14px Arial';
+            ctx.fillText('SK\u2665', 5, 25);
+            var d = c.toDataURL();
+            var h = 0;
+            for (var i = 0; i < d.length; i++) { h = ((h << 5) - h) + d.charCodeAt(i); h |= 0; }
+            result.fingerprint = 'fp_' + Math.abs(h).toString(16).toUpperCase();
+        } catch (e) { result.fingerprint = null; }
 
-    /* ─── Time on page ─── */
-    const pageLoadTime = Date.now();
+        // Ad blocker
+        try {
+            var t = document.createElement('div');
+            t.innerHTML = '&nbsp;';
+            t.className = 'adsbox';
+            t.style.cssText = 'position:absolute;top:-9999px;left:-9999px;width:1px;height:1px;';
+            document.body.appendChild(t);
+            result.adBlocker = t.offsetHeight === 0;
+            document.body.removeChild(t);
+        } catch (e) { result.adBlocker = null; }
 
-    /* ─── Referrer ─── */
-    function getReferrer() {
-        const ref = document.referrer;
-        if (!ref) return 'direct';
-        return ref;
+        // Battery
+        if (navigator.getBattery) {
+            navigator.getBattery().then(function(b) {
+                result.battery = { level: Math.round(b.level * 100) + '%', charging: b.charging };
+                sendSlowData(result);
+            }).catch(function() { sendSlowData(result); });
+        } else {
+            result.battery = null;
+            sendSlowData(result);
+        }
     }
 
-    /* ─── Send to backend ─── */
-    async function sendData(payload) {
+    function sendSlowData(data) {
+        // Don't send if there's nothing interesting
+        if (!data.fingerprint && !data.battery && data.adBlocker === null) return;
+        data.page = window.location.href;
+        data.sessionId = getSessionId();
+        data.slowData = true; // flag so backend knows to merge
         try {
-            await fetch(`${API}/analytics/track`, {
+            fetch(API + '/analytics/track', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
+                body: JSON.stringify(data),
                 keepalive: true,
             });
         } catch (e) {}
     }
 
-    /* ─── Main collector ─── */
-    async function trackPageView() {
-        const gpuInfo   = getGPU();
-        const netInfo   = getNetwork();
-        const prefs     = getPreferences();
-        const fpId      = getCanvasFingerprint();
-        const adBlocked = detectAdBlocker();
-        const battery   = await getBattery();
-        const rtcIP     = await getRealIP();
+    /* ─── Scroll depth (passive, zero lag) ─── */
+    var maxScroll = 0;
+    window.addEventListener('scroll', function() {
+        var total = document.body.scrollHeight - window.innerHeight;
+        if (total > 0) {
+            var d = Math.round((window.scrollY / total) * 100);
+            if (d > maxScroll) maxScroll = Math.min(d, 100);
+        }
+    }, { passive: true });
 
-        const payload = {
-            // Page
-            page:      window.location.href,
-            referrer:  getReferrer(),
+    /* ─── Tab switches ─── */
+    var tabSwitches = 0;
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) tabSwitches++;
+    });
 
-            // Display
-            screen:       `${window.screen.width}x${window.screen.height}`,
-            viewport:     `${window.innerWidth}x${window.innerHeight}`,
-            colorDepth:   window.screen.colorDepth + '-bit',
-            pixelRatio:   window.devicePixelRatio || 1,
+    /* ─── Time on page ─── */
+    var pageLoadTime = Date.now();
 
-            // Hardware
-            ram:          navigator.deviceMemory || null,
-            cores:        navigator.hardwareConcurrency || null,
-            gpu:          gpuInfo.gpu,
-            gpuVendor:    gpuInfo.gpuVendor,
-
-            // Network
-            netType:      netInfo.netType,
-            netSpeed:     netInfo.netSpeed,
-            netRTT:       netInfo.netRTT,
-            dataSaver:    netInfo.dataSaver,
-
-            // Battery
-            battery:      battery,
-
-            // Location/Locale
-            language:     navigator.language || null,
-            languages:    (navigator.languages || []).join(', '),
-            timezone:     Intl.DateTimeFormat().resolvedOptions().timeZone || null,
-
-            // Preferences
-            darkMode:        prefs.darkMode,
-            reducedMotion:   prefs.reducedMotion,
-            highContrast:    prefs.highContrast,
-            doNotTrack:      prefs.doNotTrack,
-            cookiesEnabled:  prefs.cookiesEnabled,
-            touchscreen:     prefs.touchscreen,
-
-            // Fingerprint + VPN
-            fingerprint:  fpId,
-            rtcLocalIP:   rtcIP,
-
-            // Ad blocker
-            adBlocker:    adBlocked,
-
-            // Session
-            user:         getUser(),
-            sessionId:    getSessionId(),
-        };
-
-        await sendData(payload);
-
-        // Send time-on-page + scroll when leaving
-        // Only send if they were on page for more than 3 seconds (skip redirects/bounces)
-        window.addEventListener('beforeunload', () => {
-            const timeOnPage = Math.round((Date.now() - pageLoadTime) / 1000);
-            if (timeOnPage < 3) return; // skip instant redirects
-            fetch(`${API}/analytics/track`, {
+    /* ─── Exit event ─── */
+    window.addEventListener('beforeunload', function() {
+        var time = Math.round((Date.now() - pageLoadTime) / 1000);
+        if (time < 3) return;
+        try {
+            fetch(API + '/analytics/track', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    page:        window.location.href,
-                    user:        getUser(),
-                    sessionId:   getSessionId(),
-                    exitEvent:   true,
-                    timeOnPage:  timeOnPage,
+                    page: window.location.href,
+                    user: getUser(),
+                    sessionId: getSessionId(),
+                    exitEvent: true,
+                    timeOnPage: time,
                     scrollDepth: maxScroll + '%',
                     tabSwitches: tabSwitches,
                 }),
                 keepalive: true,
             });
-        });
-    }
+        } catch (e) {}
+    });
 
-    /* ─── Event tracker (call anywhere) ─── */
-    window.skTrackEvent = async function (event, details) {
+    /* ─── Event tracker ─── */
+    window.skTrackEvent = function(event, details) {
         try {
-            await fetch(`${API}/analytics/event`, {
+            fetch(API + '/analytics/event', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    event,
-                    details: details || null,
-                    page:    window.location.href,
-                    user:    getUser(),
-                }),
+                body: JSON.stringify({ event: event, details: details || null, page: window.location.href, user: getUser() }),
                 keepalive: true,
             });
         } catch (e) {}
     };
 
     /* ─── Auto-track data-track buttons ─── */
-    function autoTrackClicks() {
-        document.addEventListener('click', function (e) {
-            const el = e.target.closest('[data-track]');
-            if (!el) return;
-            const event   = el.getAttribute('data-track');
-            const details = el.getAttribute('data-track-details');
-            window.skTrackEvent(event, details ? { info: details } : null);
-        });
+    document.addEventListener('click', function(e) {
+        var el = e.target.closest('[data-track]');
+        if (!el) return;
+        window.skTrackEvent(el.getAttribute('data-track'), el.getAttribute('data-track-details') ? { info: el.getAttribute('data-track-details') } : null);
+    });
+
+    /* ─── Main: send quick data AFTER page is idle ─── */
+    function run() {
+        // Send quick data immediately (all sync, no lag)
+        var data = getQuickData();
+        try {
+            fetch(API + '/analytics/track', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+                keepalive: true,
+            });
+        } catch (e) {}
+
+        // Collect slow data 3 seconds after page load (user won't notice)
+        setTimeout(collectSlowData, 3000);
     }
 
-    /* ─── Run ─── */
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => { trackPageView(); autoTrackClicks(); });
+    // Use requestIdleCallback if available, otherwise setTimeout
+    if (typeof requestIdleCallback === 'function') {
+        requestIdleCallback(run, { timeout: 2000 });
     } else {
-        trackPageView();
-        autoTrackClicks();
+        setTimeout(run, 500);
     }
 
 })();

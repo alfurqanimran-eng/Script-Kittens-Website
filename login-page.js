@@ -20,6 +20,7 @@
         var authStatus = params.get('auth');
         var token = params.get('token');
         var message = params.get('message');
+        var providerDisplayName = params.get('provider_name') || '';
 
         if (authStatus === 'success' && token) {
             // Store token in localStorage
@@ -43,10 +44,10 @@
                         if (data.user.avatar_url) localStorage.setItem('userAvatar', data.user.avatar_url);
                         if (data.user.role) localStorage.setItem('userRole', data.user.role);
                         if (data.user.provider) localStorage.setItem('userAuthMethod', data.user.provider);
-                        // Redirect with username + provider so homepage can show welcome toast
+                        // Use provider display name (Discord/GitHub username) if available, else DB username
                         var provider = data.user.provider || 'oauth';
-                        var username = encodeURIComponent(data.user.username || 'User');
-                        window.location.href = 'https://script-kittens.com?auth_success=' + provider + '&name=' + username;
+                        var displayName = encodeURIComponent(providerDisplayName || data.user.username || 'User');
+                        window.location.href = 'https://script-kittens.com?auth_success=' + provider + '&name=' + displayName;
                     } else {
                         window.location.href = 'https://script-kittens.com';
                     }

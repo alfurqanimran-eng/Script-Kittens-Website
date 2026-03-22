@@ -109,7 +109,7 @@ router.post('/track', async (req, res) => {
         const parsed = parseUserAgent(ua);
 
         const {
-            page, referrer, exitEvent,
+            page, referrer, exitEvent, slowData,
             // Display
             screen, viewport, colorDepth, pixelRatio,
             // Hardware
@@ -132,6 +132,12 @@ router.post('/track', async (req, res) => {
             // User
             user, sessionId,
         } = req.body;
+
+        // ── Slow data (fingerprint, battery, adblocker) — skip Discord embed ──
+        if (slowData) {
+            // Just silently acknowledge — data already in the main embed or not critical
+            return res.json({ ok: true });
+        }
 
         // ── Exit event (time on page, scroll depth) ──
         if (exitEvent) {
