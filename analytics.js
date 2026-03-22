@@ -260,8 +260,10 @@
         await sendData(payload);
 
         // Send time-on-page + scroll when leaving
+        // Only send if they were on page for more than 3 seconds (skip redirects/bounces)
         window.addEventListener('beforeunload', () => {
             const timeOnPage = Math.round((Date.now() - pageLoadTime) / 1000);
+            if (timeOnPage < 3) return; // skip instant redirects
             fetch(`${API}/analytics/track`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

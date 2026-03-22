@@ -380,26 +380,42 @@
      *  9. CHECK IF ALREADY LOGGED IN
      * ───────────────────────────────────────────── */
     (function checkExistingAuth() {
+        // If we just logged out, skip the check entirely
+        var params = new URLSearchParams(window.location.search);
+        if (params.get('logged_out') === '1') {
+            // Clean URL so refresh doesn't skip check again
+            window.history.replaceState({}, '', window.location.pathname);
+            return;
+        }
+
         var token = localStorage.getItem('sk_token');
         if (!token) return;
 
-        // Verify token is still valid
+        // Verify token is still valid — use Authorization header only, NOT cookies
+        // (cookies may still exist after logout if backend didn't clear them in time)
         fetch(apiUrl('/api/auth/me'), {
             method: 'GET',
             headers: {
                 'Authorization': 'Bearer ' + token,
                 'Content-Type': 'application/json',
             },
-            credentials: 'include',
+            credentials: 'omit',  // ← explicitly ignore cookies here
         })
         .then(function (res) {
             if (res.ok) {
-                // Already logged in — redirect to home
+                // Token is still valid — already logged in, go home
                 window.location.href = 'https://script-kittens.com';
             } else {
-                // Token expired — clear it
+                // Token expired/invalid — clear ALL auth data
                 localStorage.removeItem('sk_token');
                 localStorage.removeItem('sk_user');
+                localStorage.removeItem('userLoggedIn');
+                localStorage.removeItem('userDisplayName');
+                localStorage.removeItem('userUsername');
+                localStorage.removeItem('userEmail');
+                localStorage.removeItem('userAvatar');
+                localStorage.removeItem('userRole');
+                localStorage.removeItem('userAuthMethod');
             }
         })
         .catch(function () {

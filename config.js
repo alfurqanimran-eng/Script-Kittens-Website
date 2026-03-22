@@ -36,17 +36,8 @@ function isLoggedIn() {
 
 function logout() {
     var token = getAuthToken();
-    // Call backend to clear session
-    fetch(API_BASE_URL + '/auth/logout', {
-        method: 'POST',
-        headers: {
-            'Authorization': 'Bearer ' + (token || ''),
-            'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-    }).catch(function() {});
 
-    // Clear ALL local storage auth data
+    // Clear ALL local storage auth data FIRST
     localStorage.removeItem('sk_token');
     localStorage.removeItem('sk_user');
     localStorage.removeItem('userLoggedIn');
@@ -59,6 +50,18 @@ function logout() {
     localStorage.removeItem('userRole');
     localStorage.removeItem('userAuthMethod');
 
-    // Redirect to login subdomain
-    window.location.href = 'https://login.script-kittens.com';
+    // Call backend to clear HTTP-only cookie + session, THEN redirect
+    fetch(API_BASE_URL + '/auth/logout', {
+        method: 'POST',
+        headers: {
+            'Authorization': 'Bearer ' + (token || ''),
+            'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+    })
+    .catch(function() {})
+    .finally(function() {
+        // Redirect AFTER backend clears the cookie
+        window.location.href = 'https://login.script-kittens.com?logged_out=1';
+    });
 }
