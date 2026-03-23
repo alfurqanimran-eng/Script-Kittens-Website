@@ -104,8 +104,8 @@ async function findOrCreateOAuthUser(provider, providerProfile) {
     }
 
     const [result] = await pool.execute(
-        `INSERT INTO users (uuid, email, username, password, avatar_url, provider, provider_id, is_verified, created_at, last_login)
-         VALUES (?, ?, ?, NULL, ?, ?, ?, 1, NOW(), NOW())`,
+        `INSERT INTO users (uuid, email, username, avatar_url, provider, provider_id, is_verified, created_at, last_login)
+         VALUES (?, ?, ?, ?, ?, ?, 1, NOW(), NOW())`,
         [userUuid, email?.toLowerCase() || null, finalUsername, avatar, provider, String(providerId)]
     );
 
