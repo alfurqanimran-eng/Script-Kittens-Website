@@ -368,7 +368,7 @@ router.get('/me', authRequired, async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        return res.json({ user: rows[0] });
+        return res.json({ user: rows[0], token });
     } catch (err) {
         console.error('me error:', err);
         return res.status(500).json({ error: 'Server error' });

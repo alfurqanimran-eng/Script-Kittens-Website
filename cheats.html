@@ -606,7 +606,31 @@ function getUser(){ try{ return JSON.parse(localStorage.getItem('sk_user')); }ca
 function isLoggedIn(){ return !!getToken(); }
 function authHeaders(){ return { 'Authorization': 'Bearer ' + (getToken()||''), 'Content-Type': 'application/json' }; }
 
-document.addEventListener('DOMContentLoaded',()=>{
+/* ─── Sync auth state from cookie → localStorage on page load ─── */
+async function syncAuth() {
+    try {
+        const res = await fetch(`${API}/auth/me`, {
+            credentials: 'include',
+            headers: getToken() ? { 'Authorization': 'Bearer ' + getToken() } : {}
+        });
+        if (res.ok) {
+            const data = await res.json();
+            if (data.user) {
+                // Refresh localStorage from live server data
+                localStorage.setItem('sk_user', JSON.stringify(data.user));
+                if (data.token) localStorage.setItem('sk_token', data.token);
+            }
+        } else if (res.status === 401) {
+            // Token expired or invalid — clear localStorage
+            localStorage.removeItem('sk_token');
+            localStorage.removeItem('sk_user');
+        }
+    } catch(e) { /* offline or API down — don't clear, use cached */ }
+}
+
+document.addEventListener('DOMContentLoaded', async ()=>{
+/* ─── Sync auth first (OAuth cookie → localStorage) ─── */
+await syncAuth();
 /* Hamburger */
 const ham=document.getElementById('navHam'),mob=document.getElementById('navMob');
 ham.addEventListener('click',()=>mob.classList.toggle('open'));

@@ -153,20 +153,23 @@ CREATE TABLE IF NOT EXISTS vault_reports (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 `;
 
-async function setup() {
+async function runSetup() {
     try {
         console.log('🔧 Running database setup...');
-        // Split by semicolons and run each statement
-        const statements = SCHEMA.split(';').filter(s => s.trim().length > 5);
+        const statements = SCHEMA.split(';').filter(s => s.trim().length > 10);
         for (const stmt of statements) {
-            await pool.execute(stmt);
+            const clean = stmt.replace(/--[^\n]*/g, '').trim(); // strip inline comments
+            if (clean.length > 10) await pool.execute(clean);
         }
-        console.log('✅ Database tables created successfully!');
-        process.exit(0);
+        console.log('✅ Database tables verified/created!');
     } catch (err) {
         console.error('❌ Database setup failed:', err.message);
-        process.exit(1);
     }
 }
 
-setup();
+// If run directly (node db/setup.js), execute and exit
+if (require.main === module) {
+    runSetup().then(() => process.exit(0)).catch(() => process.exit(1));
+}
+
+module.exports = { runSetup };

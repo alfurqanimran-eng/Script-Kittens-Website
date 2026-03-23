@@ -116,7 +116,7 @@ app.use((err, req, res, next) => {
 });
 
 /* ─── Start Server ─── */
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
     console.log(`
 ╔══════════════════════════════════════════════╗
 ║   Script Kittens API                         ║
@@ -125,6 +125,14 @@ app.listen(PORT, () => {
 ║   CORS: *.script-kittens.com                 ║
 ╚══════════════════════════════════════════════╝
     `);
+
+    // Auto-run DB setup — all statements use IF NOT EXISTS so it's safe every restart
+    try {
+        const { runSetup } = require('./db/setup');
+        await runSetup();
+    } catch (e) {
+        console.error('⚠️ DB auto-setup error:', e.message);
+    }
 });
 
 module.exports = app;
