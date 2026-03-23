@@ -187,12 +187,16 @@
     (function initSocialButtons() {
         var socialBtns = document.querySelectorAll('.auth-social-btn');
         var providers = ['google', 'discord', 'github'];
+        // Get redirect destination from URL param or sessionStorage
+        var params = new URLSearchParams(window.location.search);
+        var redirectAfter = params.get('redirect') || sessionStorage.getItem('sk_login_redirect') || '';
 
         socialBtns.forEach(function (btn, index) {
             if (providers[index]) {
                 btn.addEventListener('click', function () {
-                    // Redirect to OAuth endpoint
-                    window.location.href = apiUrl('/api/oauth/' + providers[index]);
+                    var url = apiUrl('/api/oauth/' + providers[index]);
+                    if (redirectAfter) url += '?redirect=' + encodeURIComponent(redirectAfter);
+                    window.location.href = url;
                 });
             }
         });

@@ -121,7 +121,7 @@ async function findOrCreateOAuthUser(provider, providerProfile) {
 }
 
 /* ─── Helper: Set cookie and redirect to login subdomain ─── */
-function loginAndRedirect(res, req, user) {
+function loginAndRedirect(res, req, user, redirectAfter) {
     const token = generateToken(user);
 
     // Set HTTP-only cookie on .script-kittens.com (shared across all subdomains)
@@ -146,9 +146,10 @@ function loginAndRedirect(res, req, user) {
     const provider = user.provider || 'oauth';
     if (notifyDiscordLogin) notifyDiscordLogin(user, provider, getRealIP(req), req);
 
-    // Redirect to login page with token (login page JS will grab it and redirect to home)
+    // Redirect to login page with token + original redirect destination
     const displayName = encodeURIComponent(user.display_name || user.username || '');
-    return res.redirect(`${LOGIN_URL}?auth=success&token=${token}&provider_name=${displayName}`);
+    const redirectParam = redirectAfter ? `&redirect=${encodeURIComponent(redirectAfter)}` : '';
+    return res.redirect(`${LOGIN_URL}?auth=success&token=${token}&provider_name=${displayName}${redirectParam}`);
 }
 
 /* ═══════════════════════════════════════════════ */
@@ -156,6 +157,8 @@ function loginAndRedirect(res, req, user) {
 /* ═══════════════════════════════════════════════ */
 
 router.get('/google', (req, res) => {
+    const redirectAfter = req.query.redirect || '';
+    const state = Buffer.from(JSON.stringify({ redirect: redirectAfter })).toString('base64');
     const params = new URLSearchParams({
         client_id: process.env.GOOGLE_CLIENT_ID,
         redirect_uri: `${BACKEND_URL}/oauth/google/callback`,
@@ -163,13 +166,16 @@ router.get('/google', (req, res) => {
         scope: 'openid email profile',
         access_type: 'offline',
         prompt: 'consent',
+        state,
     });
     res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params}`);
 });
 
 router.get('/google/callback', async (req, res) => {
     try {
-        const { code, error } = req.query;
+        const { code, error, state } = req.query;
+        let redirectAfter = '';
+        try { redirectAfter = JSON.parse(Buffer.from(state || '', 'base64').toString()).redirect || ''; } catch {}
         if (error || !code) {
             return res.redirect(`${LOGIN_URL}?auth=error&message=${encodeURIComponent(error || 'No code received')}`);
         }
@@ -204,7 +210,7 @@ router.get('/google/callback', async (req, res) => {
             avatar: userInfo.picture,
         });
 
-        return loginAndRedirect(res, req, user);
+        return loginAndRedirect(res, req, user, redirectAfter);
     } catch (err) {
         console.error('Google OAuth error:', err);
         return res.redirect(`${LOGIN_URL}?auth=error&message=${encodeURIComponent('Google login failed')}`);
@@ -216,18 +222,23 @@ router.get('/google/callback', async (req, res) => {
 /* ═══════════════════════════════════════════════ */
 
 router.get('/discord', (req, res) => {
+    const redirectAfter = req.query.redirect || '';
+    const state = Buffer.from(JSON.stringify({ redirect: redirectAfter })).toString('base64');
     const params = new URLSearchParams({
         client_id: process.env.DISCORD_CLIENT_ID,
         redirect_uri: `${BACKEND_URL}/oauth/discord/callback`,
         response_type: 'code',
         scope: 'identify email',
+        state,
     });
     res.redirect(`https://discord.com/api/oauth2/authorize?${params}`);
 });
 
 router.get('/discord/callback', async (req, res) => {
     try {
-        const { code, error } = req.query;
+        const { code, error, state } = req.query;
+        let redirectAfter = '';
+        try { redirectAfter = JSON.parse(Buffer.from(state || '', 'base64').toString()).redirect || ''; } catch {}
         if (error || !code) {
             return res.redirect(`${LOGIN_URL}?auth=error&message=${encodeURIComponent(error || 'No code received')}`);
         }
@@ -266,7 +277,7 @@ router.get('/discord/callback', async (req, res) => {
             avatar: avatarUrl,
         });
 
-        return loginAndRedirect(res, req, user);
+        return loginAndRedirect(res, req, user, redirectAfter);
     } catch (err) {
         console.error('Discord OAuth error:', err);
         return res.redirect(`${LOGIN_URL}?auth=error&message=${encodeURIComponent('Discord login failed')}`);
@@ -278,17 +289,22 @@ router.get('/discord/callback', async (req, res) => {
 /* ═══════════════════════════════════════════════ */
 
 router.get('/github', (req, res) => {
+    const redirectAfter = req.query.redirect || '';
+    const state = Buffer.from(JSON.stringify({ redirect: redirectAfter })).toString('base64');
     const params = new URLSearchParams({
         client_id: process.env.GITHUB_CLIENT_ID,
         redirect_uri: `${BACKEND_URL}/oauth/github/callback`,
         scope: 'user:email',
+        state,
     });
     res.redirect(`https://github.com/login/oauth/authorize?${params}`);
 });
 
 router.get('/github/callback', async (req, res) => {
     try {
-        const { code, error } = req.query;
+        const { code, error, state } = req.query;
+        let redirectAfter = '';
+        try { redirectAfter = JSON.parse(Buffer.from(state || '', 'base64').toString()).redirect || ''; } catch {}
         if (error || !code) {
             return res.redirect(`${LOGIN_URL}?auth=error&message=${encodeURIComponent(error || 'No code received')}`);
         }
@@ -338,7 +354,7 @@ router.get('/github/callback', async (req, res) => {
             avatar: userInfo.avatar_url,
         });
 
-        return loginAndRedirect(res, req, user);
+        return loginAndRedirect(res, req, user, redirectAfter);
     } catch (err) {
         console.error('GitHub OAuth error:', err);
         return res.redirect(`${LOGIN_URL}?auth=error&message=${encodeURIComponent('GitHub login failed')}`);
