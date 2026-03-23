@@ -428,7 +428,7 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.6}
     </div>
     <!-- Right: User or Login -->
     <div class="ck-nav-right">
-        <a href="https://login.script-kittens.com" class="ck-nav-login" id="navLoginBtn">Login</a>
+        <a href="https://login.script-kittens.com?redirect=https://cheats.script-kittens.com" class="ck-nav-login" id="navLoginBtn">Login</a>
         <div class="ck-nav-user" id="navUserBtn" style="display:none" onclick="window.location.href='https://profile.script-kittens.com'">
             <div class="ck-nav-av" id="navAv"></div>
             <span class="ck-nav-username" id="navUsername"></span>
@@ -441,7 +441,7 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.6}
     <a href="https://script-kittens.com">← Back to Home</a>
     <a href="https://script-kittens.com/#products">Products</a>
     <a href="https://discord.gg/AqkdsPMU7M" target="_blank">Discord</a>
-    <a href="https://login.script-kittens.com" class="ck-mob-login" id="mobLoginBtn">Login / Sign Up</a>
+    <a href="https://login.script-kittens.com?redirect=https://cheats.script-kittens.com" class="ck-mob-login" id="mobLoginBtn">Login / Sign Up</a>
 </div>
 </nav>
 
@@ -852,6 +852,7 @@ window.hShare=function(slug,title){
 function showLoginGate(){
     let m=document.getElementById('loginGate');
     if(!m){
+        const returnUrl = encodeURIComponent(window.location.href);
         m=document.createElement('div');
         m.id='loginGate';
         m.style.cssText='position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px';
@@ -860,7 +861,7 @@ function showLoginGate(){
             <h3 style="font-size:18px;font-weight:700;margin-bottom:8px">Login Required</h3>
             <p style="color:var(--t2);font-size:13px;margin-bottom:28px;line-height:1.6">You need a free Script Kittens account to download scripts and upload to the vault.</p>
             <div style="display:flex;flex-direction:column;gap:10px">
-                <a href="https://login.script-kittens.com" style="display:block;padding:12px;background:var(--r);color:#fff;border-radius:var(--rad);font-weight:700;font-size:14px">Login / Sign Up — Free</a>
+                <a href="https://login.script-kittens.com?redirect=${returnUrl}" style="display:block;padding:12px;background:var(--r);color:#fff;border-radius:var(--rad);font-weight:700;font-size:14px">Login / Sign Up — Free</a>
                 <button onclick="document.getElementById('loginGate').remove()" style="padding:10px;background:var(--sf);border:1px solid var(--bd);border-radius:var(--rad);color:var(--t2);font-size:13px;cursor:pointer">Cancel</button>
             </div>
         </div>`;

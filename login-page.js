@@ -21,6 +21,12 @@
         var token = params.get('token');
         var message = params.get('message');
         var providerDisplayName = params.get('provider_name') || '';
+        var redirectTo = params.get('redirect') || sessionStorage.getItem('sk_login_redirect') || 'https://script-kittens.com';
+
+        // Save redirect target for after OAuth (OAuth loses query params through the flow)
+        if (params.get('redirect')) {
+            sessionStorage.setItem('sk_login_redirect', params.get('redirect'));
+        }
 
         if (authStatus === 'success' && token) {
             // Store token in localStorage
@@ -44,23 +50,23 @@
                         if (data.user.avatar_url) localStorage.setItem('userAvatar', data.user.avatar_url);
                         if (data.user.role) localStorage.setItem('userRole', data.user.role);
                         if (data.user.provider) localStorage.setItem('userAuthMethod', data.user.provider);
-                        // Use provider display name (Discord/GitHub username) if available, else DB username
-                        var provider = data.user.provider || 'oauth';
-                        var displayName = encodeURIComponent(providerDisplayName || data.user.username || 'User');
-                        window.location.href = 'https://script-kittens.com?auth_success=' + provider + '&name=' + displayName;
-                    } else {
-                        window.location.href = 'https://script-kittens.com';
                     }
+                    sessionStorage.removeItem('sk_login_redirect');
+                    // Redirect back to where they came from
+                    var dest = redirectTo.startsWith('https://') || redirectTo.startsWith('http://')
+                        ? redirectTo
+                        : 'https://script-kittens.com';
+                    window.location.href = dest;
                 })
                 .catch(function () {
-                    window.location.href = 'https://script-kittens.com';
+                    sessionStorage.removeItem('sk_login_redirect');
+                    window.location.href = redirectTo || 'https://script-kittens.com';
                 });
             return;
         }
 
         if (authStatus === 'error') {
             window.history.replaceState({}, '', window.location.pathname);
-            // Will show error after DOM loads
             window._oauthError = decodeURIComponent(message || 'OAuth login failed');
         }
     })();
@@ -302,8 +308,9 @@
 
                 showMessage(stepLogin, 'success', 'Signed in successfully! Redirecting...');
                 setTimeout(function () {
-                    var username = encodeURIComponent(result.data.user ? result.data.user.username || 'User' : 'User');
-                    window.location.href = 'https://script-kittens.com?auth_success=email&name=' + username;
+                    var dest = sessionStorage.getItem('sk_login_redirect') || 'https://script-kittens.com';
+                    sessionStorage.removeItem('sk_login_redirect');
+                    window.location.href = dest;
                 }, 1200);
             })
             .catch(function (err) {
@@ -366,8 +373,9 @@
 
                 showMessage(stepSignup, 'success', 'Account created! Redirecting...');
                 setTimeout(function () {
-                    var username = encodeURIComponent(result.data.user ? result.data.user.username || 'User' : 'User');
-                    window.location.href = 'https://script-kittens.com?auth_success=email&name=' + username;
+                    var dest = sessionStorage.getItem('sk_login_redirect') || 'https://script-kittens.com';
+                    sessionStorage.removeItem('sk_login_redirect');
+                    window.location.href = dest;
                 }, 1200);
             })
             .catch(function (err) {
@@ -435,7 +443,9 @@
         })
         .then(function(res) {
             if (res.ok) {
-                window.location.href = 'https://script-kittens.com';
+                var dest = sessionStorage.getItem('sk_login_redirect') || 'https://script-kittens.com';
+                sessionStorage.removeItem('sk_login_redirect');
+                window.location.href = dest;
             } else {
                 // Dead token — clear it all
                 localStorage.removeItem('sk_token');
