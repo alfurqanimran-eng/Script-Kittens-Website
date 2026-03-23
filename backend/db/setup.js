@@ -53,6 +53,104 @@ CREATE TABLE IF NOT EXISTS password_resets (
     INDEX idx_token (token),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ═══════════════════════════════════════════════
+--  VAULT PLATFORM TABLES
+-- ═══════════════════════════════════════════════
+
+-- Core content table
+CREATE TABLE IF NOT EXISTS vault_items (
+    id              INT AUTO_INCREMENT PRIMARY KEY,
+    uuid            VARCHAR(36) NOT NULL UNIQUE,
+    user_id         INT NOT NULL,
+    title           VARCHAR(200) NOT NULL,
+    slug            VARCHAR(220) NOT NULL UNIQUE,
+    description     TEXT DEFAULT NULL,
+    type            ENUM('code','script','project','tool') NOT NULL,
+    game            VARCHAR(50) DEFAULT 'other',
+    language        VARCHAR(30) DEFAULT 'other',
+    tags            JSON DEFAULT NULL,
+    code_content    LONGTEXT DEFAULT NULL,
+    thumbnail_url   VARCHAR(500) DEFAULT NULL,
+    is_premium      TINYINT(1) DEFAULT 0,
+    status          ENUM('pending','approved','rejected') DEFAULT 'approved',
+    download_count  INT DEFAULT 0,
+    vote_score      INT DEFAULT 0,
+    view_count      INT DEFAULT 0,
+    created_at      DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at      DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    INDEX idx_vault_user (user_id),
+    INDEX idx_vault_type (type),
+    INDEX idx_vault_game (game),
+    INDEX idx_vault_status (status),
+    INDEX idx_vault_premium (is_premium),
+    INDEX idx_vault_created (created_at),
+    INDEX idx_vault_votes (vote_score),
+    INDEX idx_vault_downloads (download_count),
+    FULLTEXT idx_vault_search (title, description),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Files attached to vault items
+CREATE TABLE IF NOT EXISTS vault_files (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    item_id     INT NOT NULL,
+    filename    VARCHAR(255) NOT NULL,
+    stored_name VARCHAR(255) NOT NULL,
+    file_path   VARCHAR(500) NOT NULL,
+    file_size   BIGINT DEFAULT 0,
+    mime_type   VARCHAR(100) DEFAULT NULL,
+    file_type   ENUM('source','archive','executable','image') NOT NULL,
+    created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX idx_vf_item (item_id),
+    FOREIGN KEY (item_id) REFERENCES vault_items(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Download tracking (login required to download)
+CREATE TABLE IF NOT EXISTS vault_downloads (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    item_id     INT NOT NULL,
+    user_id     INT NOT NULL,
+    ip_address  VARCHAR(45) DEFAULT NULL,
+    created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX idx_vd_item (item_id),
+    INDEX idx_vd_user (user_id),
+    FOREIGN KEY (item_id) REFERENCES vault_items(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Upvote / downvote (1 per user per item)
+CREATE TABLE IF NOT EXISTS vault_votes (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    item_id     INT NOT NULL,
+    user_id     INT NOT NULL,
+    vote        TINYINT NOT NULL,
+    created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE KEY unique_vote (item_id, user_id),
+    INDEX idx_vv_item (item_id),
+    FOREIGN KEY (item_id) REFERENCES vault_items(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Report malicious/broken content
+CREATE TABLE IF NOT EXISTS vault_reports (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    item_id     INT NOT NULL,
+    user_id     INT NOT NULL,
+    reason      ENUM('malware','broken','stolen','inappropriate','other') NOT NULL,
+    details     TEXT DEFAULT NULL,
+    status      ENUM('pending','resolved','dismissed') DEFAULT 'pending',
+    created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX idx_vr_item (item_id),
+    INDEX idx_vr_status (status),
+    FOREIGN KEY (item_id) REFERENCES vault_items(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 `;
 
 async function setup() {
