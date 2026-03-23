@@ -758,7 +758,7 @@ function renderCards(items){
             ?`<button class="vc-dl paid" onclick="hDL('${p.uuid}',this)"><i class="fas fa-crown"></i> Get Premium</button>`
             :`<button class="vc-dl" onclick="hDL('${p.uuid}',this)"><i class="fas ${hasCode?'fa-copy':'fa-download'}"></i> ${hasCode?'Copy Code':'Download'}</button>`;
         return`<div class="vc" onmousemove="tM(event,this)" onmouseleave="rG(this)"><div class="vc-glow"></div>
-${p.thumbnail_url?`<img class="vc-img" src="${API.replace('/api','')}${p.thumbnail_url}" alt="${esc(p.title)}" onerror="this.outerHTML='<div class=vc-ph><i class=\\'fas ${ic}\\' ></i></div>'">`
+${p.thumbnail_url?`<img class="vc-img" src="https://api.script-kittens.com${p.thumbnail_url}" alt="${esc(p.title)}" onerror="this.outerHTML='<div class=vc-ph><i class=\\'fas ${ic}\\' ></i></div>'">`
 :`<div class="vc-ph"><i class="fas ${ic}"></i></div>`}
 <div class="vc-body"><div class="vc-top">
 <div class="vc-game"><i class="fas ${ic}"></i> ${esc(p.game)} &bull; <span style="text-transform:capitalize">${esc(p.type)}</span></div>
@@ -811,23 +811,46 @@ window.hDL=async function(uuid,btn){
     const orig=btn.innerHTML;
     btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i>';
     try{
-        const res=await fetch(`${API}/vault/${uuid}/download`,{credentials:'include',headers:{'Authorization':'Bearer '+(getToken()||'')}});
-        const data=await res.json();
-        if(data.status==='success'&&data.code){
-            // Code snippet — copy to clipboard
-            await navigator.clipboard.writeText(data.code);
-            btn.innerHTML='<i class="fas fa-check"></i> Copied!'; btn.style.background='var(--g)';
-            toast('Code copied to clipboard!','ok');
-        } else if(res.ok){
-            // File download — redirect
-            window.location.href=`${API}/vault/${uuid}/download?token=${getToken()}`;
-            btn.innerHTML='<i class="fas fa-check"></i> Starting...'; btn.style.background='var(--g)';
-            toast('Download starting...','ok');
-        } else {
-            toast(data.error||'Download failed','err');
-            btn.innerHTML=orig; btn.style.background='';
+        const res=await fetch(`${API}/vault/${uuid}/download`,{
+            credentials:'include',
+            headers:{'Authorization':'Bearer '+(getToken()||'')}
+        });
+        if(!res.ok){
+            let errMsg='Download failed';
+            try{ const d=await res.json(); errMsg=d.error||errMsg; }catch(e){}
+            toast(errMsg,'err'); btn.innerHTML=orig; btn.style.background='';
+            btn.disabled=false; return;
         }
-    }catch(e){ toast('Download error','err'); btn.innerHTML=orig; btn.style.background=''; }
+        const ct=res.headers.get('content-type')||'';
+        if(ct.includes('application/json')){
+            // Code snippet — get JSON and trigger .txt file download
+            const data=await res.json();
+            if(data.status==='success'&&data.code){
+                const blob=new Blob([data.code],{type:'text/plain'});
+                const a=document.createElement('a');
+                a.href=URL.createObjectURL(blob);
+                a.download=data.filename||`Script Kittens - ${uuid}.txt`;
+                document.body.appendChild(a); a.click();
+                setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },1000);
+                btn.innerHTML='<i class="fas fa-check"></i> Downloaded!'; btn.style.background='var(--g)';
+                toast('Code downloaded!','ok');
+            }
+        } else {
+            // Binary file — consume as blob and trigger named download
+            const blob=await res.blob();
+            // Try to get filename from Content-Disposition header
+            const cd=res.headers.get('content-disposition')||'';
+            const m=cd.match(/filename[^;=\n]*=(?:(['"])([^'"]*)\1|([^;\n]*))/);
+            const fname=(m&&(m[2]||m[3]))||`Script Kittens - download`;
+            const a=document.createElement('a');
+            a.href=URL.createObjectURL(blob);
+            a.download=fname;
+            document.body.appendChild(a); a.click();
+            setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },1000);
+            btn.innerHTML='<i class="fas fa-check"></i> Downloaded!'; btn.style.background='var(--g)';
+            toast('Download started!','ok');
+        }
+    }catch(e){ toast('Download error — check connection','err'); btn.innerHTML=orig; btn.style.background=''; }
     finally{ btn.disabled=false; setTimeout(()=>{ btn.innerHTML=orig; btn.style.background=''; },3000); }
 };
 

@@ -457,7 +457,14 @@ router.get('/:id/download', authRequired, async (req, res) => {
             return res.status(403).json({ error: 'Premium content — upgrade your account' });
         }
 
-        // For code snippets, return raw code
+        // Helper: build branded filename "Script Kittens - [Title].[ext]"
+        function brandedFilename(title, originalName) {
+            const ext = path.extname(originalName || '').toLowerCase();
+            const clean = (title || 'file').replace(/[/\\:*?"<>|]/g, '').slice(0, 80).trim();
+            return `Script Kittens - ${clean}${ext}`;
+        }
+
+        // For code snippets, return raw code as downloadable .txt
         if (item.type === 'code') {
             // Log download
             pool.execute(
@@ -467,7 +474,8 @@ router.get('/:id/download', authRequired, async (req, res) => {
             pool.execute('UPDATE vault_items SET download_count = download_count + 1 WHERE id = ?', [item.id])
                 .catch(() => {});
 
-            return res.json({ status: 'success', code: item.code_content, filename: `${item.slug}.txt` });
+            const codeFilename = `Script Kittens - ${(item.title || item.slug).replace(/[/\\:*?"<>|]/g,'').slice(0,80).trim()}.txt`;
+            return res.json({ status: 'success', code: item.code_content, filename: codeFilename, title: item.title });
         }
 
         // Get primary file
@@ -490,7 +498,8 @@ router.get('/:id/download', authRequired, async (req, res) => {
         pool.execute('UPDATE vault_items SET download_count = download_count + 1 WHERE id = ?', [item.id])
             .catch(() => {});
 
-        res.download(file.file_path, file.filename);
+        // Send with branded filename
+        res.download(file.file_path, brandedFilename(item.title, file.filename));
     } catch (err) {
         console.error('Download error:', err);
         res.status(500).json({ error: 'Download failed' });

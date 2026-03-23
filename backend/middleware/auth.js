@@ -26,6 +26,11 @@ function authRequired(req, res, next) {
         token = req.cookies.sk_token;
     }
 
+    // Fallback to ?token= query param (used for direct file download URLs)
+    if (!token && req.query.token) {
+        token = req.query.token;
+    }
+
     if (!token) {
         return res.status(401).json({ error: 'Authentication required' });
     }
