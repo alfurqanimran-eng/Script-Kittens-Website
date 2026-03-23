@@ -24,6 +24,7 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'https://script-kittens.com';
 app.use(helmet({
     contentSecurityPolicy: false, // Let frontend handle CSP
     crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: 'cross-origin' }, // Allow images/files to load on cheats subdomain
 }));
 
 app.use(cors({
@@ -93,7 +94,12 @@ app.use('/api/admin', apiLimiter, adminRoutes);
 app.use('/admin', apiLimiter, adminRoutes);
 
 /* ─── Serve uploaded files ─── */
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Add CORS headers for static uploads (images need to load cross-origin on cheats subdomain)
+app.use('/uploads', (req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    next();
+}, express.static(path.join(__dirname, 'uploads')));
 
 /* ─── Health Check ─── */
 app.get('/api/health', (req, res) => {
