@@ -310,6 +310,8 @@ input,select,textarea{font-family:inherit}
 .vc-dl.paid{background:#8b5cf6}.vc-dl.paid:hover{background:#7c3aed;box-shadow:0 4px 16px rgba(139,92,246,.2)}
 .vc-sec{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:var(--rad);border:1px solid var(--bd);color:var(--t3);font-size:11px;transition:all .25s;background:rgba(255,255,255,.01)}
 .vc-sec:hover{border-color:var(--r);color:var(--r);background:var(--rd)}
+.vc-sec.voted{border-color:var(--g);color:var(--g);background:rgba(34,197,94,.08)}
+.vc-del:hover{border-color:#ef4444!important;color:#ef4444!important;background:rgba(239,68,68,.1)!important}
 
 /* Empty */
 .v-empty{grid-column:1/-1;text-align:center;padding:100px 20px}.v-empty i{font-size:40px;color:var(--t4);margin-bottom:14px;opacity:.35}.v-empty h3{font-size:16px;font-weight:600;margin-bottom:6px}.v-empty p{color:var(--t3);font-size:13px}
@@ -748,16 +750,23 @@ function renderCards(items){
         grid.innerHTML='<div class="v-empty"><i class="fas fa-ghost"></i><h3>No results</h3><p>Try different filters or be the first to upload!</p></div>';
         return;
     }
+    const me=getUser();
+    const myUuid=me?me.uuid:null;
+    const isAdmin=me&&me.role==='admin';
+
     grid.innerHTML=items.map(p=>{
         const ic=icons[p.game]||icons.other;
         const lc=lcol[p.language]||lcol.other;
         const isPremium=p.is_premium;
-        const hasFile=p.has_file;
         const hasCode=p.has_code;
+        const canDelete=(myUuid&&(myUuid===p.author_uuid||isAdmin));
         const dlBtn=isPremium
             ?`<button class="vc-dl paid" onclick="hDL('${p.uuid}',this)"><i class="fas fa-crown"></i> Get Premium</button>`
-            :`<button class="vc-dl" onclick="hDL('${p.uuid}',this)"><i class="fas ${hasCode?'fa-copy':'fa-download'}"></i> ${hasCode?'Copy Code':'Download'}</button>`;
-        return`<div class="vc" onmousemove="tM(event,this)" onmouseleave="rG(this)"><div class="vc-glow"></div>
+            :`<button class="vc-dl" onclick="hDL('${p.uuid}',this)"><i class="fas ${hasCode?'fa-file-download':'fa-download'}"></i> Download</button>`;
+        const delBtn=canDelete
+            ?`<button class="vc-sec vc-del" title="${isAdmin&&myUuid!==p.author_uuid?'Delete (Admin)':'Delete my post'}" onclick="hDelete('${p.uuid}','${esc(p.title)}',this)"><i class="fas fa-trash-alt"></i></button>`
+            :'';
+        return`<div class="vc" data-uuid="${p.uuid}" onmousemove="tM(event,this)" onmouseleave="rG(this)"><div class="vc-glow"></div>
 ${p.thumbnail_url?`<img class="vc-img" src="https://api.script-kittens.com${p.thumbnail_url}" alt="${esc(p.title)}" onerror="this.outerHTML='<div class=vc-ph><i class=\\'fas ${ic}\\' ></i></div>'">`
 :`<div class="vc-ph"><i class="fas ${ic}"></i></div>`}
 <div class="vc-body"><div class="vc-top">
@@ -779,8 +788,9 @@ ${isPremium?'<span class="vt vt-paid">PAID</span>':''}
 <div class="vc-stat"><i class="fas fa-thumbs-up" style="color:var(--g)"></i> ${p.vote_score||0}</div>
 </div></div>
 <div class="vc-actions">${dlBtn}
-<button class="vc-sec" title="Vote" onclick="hVote('${p.uuid}',this)"><i class="fas fa-thumbs-up"></i></button>
+<button class="vc-sec" title="Like" onclick="hVote('${p.uuid}',this)"><i class="fas fa-thumbs-up"></i></button>
 <button class="vc-sec" title="Share" onclick="hShare('${esc(p.slug)}','${esc(p.title)}')"><i class="fas fa-share-alt"></i></button>
+${delBtn}
 </div></div>`;
     }).join('');
 
@@ -854,15 +864,80 @@ window.hDL=async function(uuid,btn){
     finally{ btn.disabled=false; setTimeout(()=>{ btn.innerHTML=orig; btn.style.background=''; },3000); }
 };
 
-/* ─── Vote handler ─── */
+/* ─── Vote handler (with visual toggle) ─── */
 window.hVote=async function(uuid,btn){
     if(!isLoggedIn()){ showLoginGate(); return; }
     try{
         const res=await fetch(`${API}/vault/${uuid}/vote`,{method:'POST',credentials:'include',headers:authHeaders(),body:JSON.stringify({vote:1})});
         const data=await res.json();
-        if(data.status==='success'){ btn.style.color='var(--g)'; toast('Voted!','ok'); }
-        else toast(data.error,'err');
+        if(data.status==='success'){
+            const wasActive=btn.classList.contains('voted');
+            btn.classList.toggle('voted');
+            btn.style.color=wasActive?'':'var(--g)';
+            // update score in footer stat
+            const card=btn.closest('.vc');
+            if(card){
+                const scorEl=card.querySelector('.vc-stat:last-child');
+                if(scorEl) scorEl.innerHTML=`<i class="fas fa-thumbs-up" style="color:var(--g)"></i> ${data.vote_score}`;
+            }
+            toast(wasActive?'Vote removed':'Voted! 👍','ok');
+        } else toast(data.error||'Vote failed','err');
     }catch(e){ toast('Vote failed','err'); }
+};
+
+/* ─── Delete handler ─── */
+window.hDelete=function(uuid,title,btn){
+    if(!isLoggedIn()){ showLoginGate(); return; }
+    // Show confirm modal
+    let m=document.getElementById('deleteModal');
+    if(m) m.remove();
+    m=document.createElement('div');
+    m.id='deleteModal';
+    m.style.cssText='position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px';
+    m.innerHTML=`<div style="background:var(--bg2);border:1px solid rgba(220,38,38,.3);border-radius:var(--rad3);padding:36px;max-width:380px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.7)">
+        <div style="width:52px;height:52px;border-radius:50%;background:rgba(220,38,38,.12);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+            <i class="fas fa-trash-alt" style="font-size:20px;color:var(--r)"></i>
+        </div>
+        <h3 style="font-size:17px;font-weight:700;margin-bottom:8px">Delete Post?</h3>
+        <p style="color:var(--t2);font-size:13px;margin-bottom:6px;line-height:1.6">This will permanently delete:</p>
+        <p style="color:var(--t1);font-size:13px;font-weight:600;margin-bottom:24px;padding:8px 12px;background:var(--sf);border-radius:var(--rad);border:1px solid var(--bd)">"${esc(title)}"</p>
+        <div style="display:flex;gap:10px">
+            <button onclick="document.getElementById('deleteModal').remove()" style="flex:1;padding:11px;background:var(--sf);border:1px solid var(--bd);border-radius:var(--rad);color:var(--t2);font-size:13px;font-weight:600;cursor:pointer">Cancel</button>
+            <button id="confirmDelBtn" style="flex:1;padding:11px;background:var(--r);border:none;border-radius:var(--rad);color:#fff;font-size:13px;font-weight:700;cursor:pointer"><i class="fas fa-trash-alt"></i> Delete</button>
+        </div>
+    </div>`;
+    m.addEventListener('click',e=>{if(e.target===m)m.remove();});
+    document.body.appendChild(m);
+
+    document.getElementById('confirmDelBtn').addEventListener('click',async ()=>{
+        const cb=document.getElementById('confirmDelBtn');
+        cb.disabled=true; cb.innerHTML='<i class="fas fa-spinner fa-spin"></i>';
+        try{
+            const res=await fetch(`${API}/vault/${uuid}`,{
+                method:'DELETE',
+                credentials:'include',
+                headers:authHeaders()
+            });
+            const data=await res.json();
+            if(data.status==='success'||res.ok){
+                m.remove();
+                // Remove card from DOM with animation
+                const card=document.querySelector(`.vc[data-uuid="${uuid}"]`);
+                if(card){
+                    card.style.transition='opacity .3s,transform .3s';
+                    card.style.opacity='0'; card.style.transform='scale(.95)';
+                    setTimeout(()=>{ card.remove(); },300);
+                }
+                toast('Post deleted successfully','ok');
+            } else {
+                toast(data.error||'Delete failed','err');
+                cb.disabled=false; cb.innerHTML='<i class="fas fa-trash-alt"></i> Delete';
+            }
+        }catch(e){
+            toast('Delete error — check connection','err');
+            cb.disabled=false; cb.innerHTML='<i class="fas fa-trash-alt"></i> Delete';
+        }
+    });
 };
 
 /* ─── Share handler ─── */
@@ -977,7 +1052,9 @@ document.getElementById('uploadForm').addEventListener('submit',async e=>{
     try{
         const fd2=new FormData();
         fd2.append('title',name);
-        fd2.append('type',sT==='project'?'project':sT==='tool'?'tool':'code');
+        // Map UI type names → backend type values
+        const typeMap={'project':'project','tool':'tool','code':'code','cheat':'script','script':'script'};
+        fd2.append('type',typeMap[sT]||sT);
         fd2.append('game',game);
         fd2.append('language',lang);
         fd2.append('description',desc);
