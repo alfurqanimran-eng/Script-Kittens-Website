@@ -14,6 +14,7 @@ const authRoutes = require('./routes/auth');
 const oauthRoutes = require('./routes/oauth');
 const analyticsRoutes = require('./routes/analytics');
 const vaultRoutes = require('./routes/vault');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -35,6 +36,7 @@ app.use(cors({
         'https://login.script-kittens.com',  // Login subdomain
         'https://cheats.script-kittens.com', // Cheats subdomain
         'https://profile.script-kittens.com',// Profile subdomain
+        'https://admin.script-kittens.com',  // Admin subdomain
         'https://api.script-kittens.com',    // API subdomain (self)
     ],
     credentials: true,                  // Allow cookies
@@ -85,6 +87,10 @@ app.use('/analytics', apiLimiter, analyticsRoutes);
 /* ─── Vault Routes ─── */
 app.use('/api/vault', apiLimiter, vaultRoutes);
 app.use('/vault', apiLimiter, vaultRoutes);
+
+/* ─── Admin Routes ─── */
+app.use('/api/admin', apiLimiter, adminRoutes);
+app.use('/admin', apiLimiter, adminRoutes);
 
 /* ─── Serve uploaded files ─── */
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

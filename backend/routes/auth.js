@@ -177,6 +177,10 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ error: 'Password must be at least 8 characters' });
         }
 
+        if (password.length > 128) {
+            return res.status(400).json({ error: 'Password must be 128 characters or less' });
+        }
+
         // Check if email already exists
         const [existingEmail] = await pool.execute(
             'SELECT id FROM users WHERE email = ? LIMIT 1',

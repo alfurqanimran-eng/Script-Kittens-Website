@@ -101,7 +101,7 @@ router.get('/', authOptional, async (req, res) => {
         const userId  = req.query.user    || null;
 
         // Build WHERE clauses
-        const conditions = ['vi.status = "approved"'];
+        const conditions = ["vi.status = 'approved'"];
         const params = [];
 
         if (type)    { conditions.push('vi.type = ?');       params.push(type); }
@@ -161,7 +161,7 @@ router.get('/', authOptional, async (req, res) => {
                 SUM(type = 'tool') AS tool_count
             FROM vault_items vi
             JOIN users u ON u.id = vi.user_id
-            WHERE vi.status = "approved"
+            WHERE vi.status = 'approved'
             ${game    ? 'AND vi.game = ?' : ''}
             ${lang    ? 'AND vi.language = ?' : ''}
             ${premium != null ? 'AND vi.is_premium = ?' : ''}
@@ -264,7 +264,7 @@ router.get('/:slug', authOptional, async (req, res) => {
 
         // Get files (excluding image)
         const [files] = await pool.execute(
-            'SELECT id, filename, file_size, file_type FROM vault_files WHERE item_id = ? AND file_type != "image"',
+            "SELECT id, filename, file_size, file_type FROM vault_files WHERE item_id = ? AND file_type != 'image'",
             [item.id]
         );
 
@@ -321,10 +321,15 @@ router.post('/', authRequired, upload.fields([
             return res.status(400).json({ error: 'File upload required for this type' });
         }
 
-        // Generate unique slug
+        // Generate unique slug (loop until unique)
         let slug = slugify(title);
-        const [existing] = await pool.execute('SELECT id FROM vault_items WHERE slug = ?', [slug]);
-        if (existing.length) slug = `${slug}-${Math.random().toString(36).slice(2, 6)}`;
+        let slugAttempts = 0;
+        while (slugAttempts < 5) {
+            const [existing] = await pool.execute('SELECT id FROM vault_items WHERE slug = ?', [slug]);
+            if (!existing.length) break;
+            slug = `${slugify(title)}-${Math.random().toString(36).slice(2, 6)}`;
+            slugAttempts++;
+        }
 
         // Determine status — executables need admin approval
         let status = 'approved';
@@ -446,7 +451,7 @@ router.delete('/:id', authRequired, async (req, res) => {
 router.get('/:id/download', authRequired, async (req, res) => {
     try {
         const [rows] = await pool.execute(
-            'SELECT * FROM vault_items WHERE uuid = ? AND status = "approved" LIMIT 1',
+            "SELECT * FROM vault_items WHERE uuid = ? AND status = 'approved' LIMIT 1",
             [req.params.id]
         );
         if (!rows.length) return res.status(404).json({ error: 'Item not found' });
@@ -480,7 +485,7 @@ router.get('/:id/download', authRequired, async (req, res) => {
 
         // Get primary file
         const [files] = await pool.execute(
-            'SELECT * FROM vault_files WHERE item_id = ? AND file_type != "image" LIMIT 1',
+            "SELECT * FROM vault_files WHERE item_id = ? AND file_type != 'image' LIMIT 1",
             [item.id]
         );
         if (!files.length) return res.status(404).json({ error: 'No file found for this item' });
@@ -515,7 +520,7 @@ router.post('/:id/vote', authRequired, async (req, res) => {
         if (![1, -1].includes(vote)) return res.status(400).json({ error: 'Vote must be 1 or -1' });
 
         const [rows] = await pool.execute(
-            'SELECT id FROM vault_items WHERE uuid = ? AND status = "approved" LIMIT 1',
+            "SELECT id FROM vault_items WHERE uuid = ? AND status = 'approved' LIMIT 1",
             [req.params.id]
         );
         if (!rows.length) return res.status(404).json({ error: 'Item not found' });
@@ -575,7 +580,7 @@ router.post('/:id/report', authRequired, async (req, res) => {
 
         // Check if already reported by this user
         const [existing] = await pool.execute(
-            'SELECT id FROM vault_reports WHERE item_id = ? AND user_id = ? AND status = "pending"',
+            "SELECT id FROM vault_reports WHERE item_id = ? AND user_id = ? AND status = 'pending'",
             [rows[0].id, req.user.id]
         );
         if (existing.length) return res.status(409).json({ error: 'You already reported this item' });
