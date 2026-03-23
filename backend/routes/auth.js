@@ -410,4 +410,87 @@ router.post('/logout', async (req, res) => {
     }
 });
 
+/* ─────────────────────────────────────────────
+ *  PUT /api/auth/update-profile
+ *  Body: { username }
+ *  Updates display name / username
+ * ───────────────────────────────────────────── */
+router.put('/update-profile', authRequired, async (req, res) => {
+    try {
+        const { username } = req.body;
+
+        if (!username || typeof username !== 'string') {
+            return res.status(400).json({ error: 'Username is required' });
+        }
+
+        const trimmed = username.trim();
+        if (trimmed.length < 2 || trimmed.length > 50) {
+            return res.status(400).json({ error: 'Username must be 2-50 characters' });
+        }
+        if (!/^[a-zA-Z0-9_.\- ]+$/.test(trimmed)) {
+            return res.status(400).json({ error: 'Username can only contain letters, numbers, spaces, dots, hyphens, and underscores' });
+        }
+
+        // Check if username is taken by someone else
+        const [existing] = await pool.execute(
+            'SELECT id FROM users WHERE username = ? AND id != ? LIMIT 1',
+            [trimmed, req.user.id]
+        );
+        if (existing.length > 0) {
+            return res.status(409).json({ error: 'This username is already taken' });
+        }
+
+        await pool.execute('UPDATE users SET username = ? WHERE id = ?', [trimmed, req.user.id]);
+
+        return res.json({ status: 'success', username: trimmed });
+    } catch (err) {
+        console.error('update-profile error:', err);
+        return res.status(500).json({ error: 'Server error' });
+    }
+});
+
+/* ─────────────────────────────────────────────
+ *  POST /api/auth/update-avatar
+ *  Multipart: avatar file
+ *  Saves avatar and returns URL
+ * ───────────────────────────────────────────── */
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+const AVATAR_DIR = path.join(__dirname, '..', 'uploads', 'avatars');
+if (!fs.existsSync(AVATAR_DIR)) fs.mkdirSync(AVATAR_DIR, { recursive: true });
+
+const avatarStorage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, AVATAR_DIR),
+    filename: (req, file, cb) => {
+        const ext = path.extname(file.originalname).toLowerCase();
+        cb(null, `${req.user.uuid}${ext}`);
+    },
+});
+const avatarUpload = multer({
+    storage: avatarStorage,
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        const allowed = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+        const ext = path.extname(file.originalname).toLowerCase();
+        if (!allowed.includes(ext)) return cb(new Error('Only image files allowed'));
+        cb(null, true);
+    },
+});
+
+router.post('/update-avatar', authRequired, avatarUpload.single('avatar'), async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+        const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+        await pool.execute('UPDATE users SET avatar_url = ? WHERE id = ?', [avatarUrl, req.user.id]);
+
+        return res.json({ status: 'success', avatar_url: avatarUrl });
+    } catch (err) {
+        console.error('update-avatar error:', err);
+        return res.status(500).json({ error: 'Upload failed' });
+    }
+});
+
 module.exports = router;
